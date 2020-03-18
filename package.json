@@ -1,0 +1,49 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development supervisor bin/server.js",
+    "prod": "pm2 start pm2.config.js --env production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@10.211.55.4:root/node-server.git"
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "dateformat": "^3.0.3",
+    "debug": "~2.2.0",
+    "ejs": "^2.7.1",
+    "get-file-list": "^1.0.3",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^8.5.1",
+    "koa": "^2.11.0",
+    "koa-better-body": "^3.1.13",
+    "koa-bodyparser": "^4.2.1",
+    "koa-log4": "^2.3.2",
+    "koa-logger": "^3.2.1",
+    "koa-router": "^7.4.0",
+    "koa-session": "^5.12.3",
+    "koa-static": "^5.0.0",
+    "koa-views": "^6.2.1",
+    "koa2-cors": "^2.0.6",
+    "ldapjs": "^1.0.2",
+    "mime-types": "^2.1.24",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.27",
+    "mongoose": "^5.7.5",
+    "mysql": "^2.17.1",
+    "node-dingtalk-latest": "^0.2.1",
+    "node-schedule": "^1.3.2",
+    "request": "^2.88.0",
+    "saslprep": "^1.0.3",
+    "serve-favicon": "~2.3.0"
+  },
+  "devDependencies": {
+    "cross-env": "^6.0.3"
+  },
+  "author": "",
+  "license": "ISC"
+}
