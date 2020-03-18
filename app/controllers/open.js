@@ -9,7 +9,7 @@ module.exports = {
       name: 'test',
       count: 1.221
     })
-    
+
     // 创建用户
     testModel.create(testEnity, (err, data) => {
       if (err) return console.log(err)
