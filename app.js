@@ -28,6 +28,7 @@ const { contentType } = require('mime-types')
 const app = new Koa()
 app.keys = config.sissionOption.keys
 const CONFIG = config.sissionOption.config
+require('./config/webascii-mysql')
 app.use(session(CONFIG, app))
 // 处理前端跨域的配置
 app.use(cors({
