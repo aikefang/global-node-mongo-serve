@@ -26,24 +26,29 @@ const session = require('koa-session')
 const { contentType } = require('mime-types')
 
 const app = new Koa()
+// 处理前端跨域的配置
+app.use(cors({
+  // origin: function (ctx) {
+  //   // if (ctx.url === '/test') {
+  //   //   return false;
+  //   // }
+  //   return '*'
+  // },
+  exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'], // 设置获取其他自定义字段
+  maxAge: 5, // 指定本次预检请求的有效期，单位为秒。
+  credentials: true, // 是否允许发送Cookie
+  allowMethods: ['GET', 'POST', 'DELETE'], // 设置所允许的HTTP请求方法
+  allowHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Accept'
+  ], // 设置服务器支持的所有头信息字段
+}))
 app.keys = config.sissionOption.keys
 const CONFIG = config.sissionOption.config
 require('./config/webascii-mysql')
 app.use(session(CONFIG, app))
-// 处理前端跨域的配置
-app.use(cors({
-  origin: function (ctx) {
-    // if (ctx.url === '/test') {
-    //   return false;
-    // }
-    return '*'
-  },
-  exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'],
-  maxAge: 5,
-  credentials: true,
-  allowMethods: ['GET', 'POST', 'DELETE'],
-  allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
-}))
+
 app.use(bodyParser())
 
 app.use(koaStatic(__dirname + '/public'))

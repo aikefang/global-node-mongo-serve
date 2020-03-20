@@ -7,7 +7,7 @@ const webasciiBijiCategoryModel = require('../models/biji/category.server.model'
 const bannerModel = require('../models/biji/banner.server.model')
 const navModel = require('../models/biji/nav.server.model')
 const {connection} = require('../../config/webascii-mysql')
-let dateFormat = require('dateformat')
+// let dateFormat = require('dateformat')
 module.exports = {
   // 处理文章
   async article(ctx, next) {
