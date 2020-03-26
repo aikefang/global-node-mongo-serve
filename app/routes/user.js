@@ -9,8 +9,8 @@ let controller = require('../controllers/user')
 //   }
 //   await next()
 // }
-router.get('/login', controller.login)
+router.post('/login', controller.login)
 router.get('/logout', controller.logout)
-router.get('/status', controller.status)
+router.get('/info', controller.info)
 
 module.exports = router

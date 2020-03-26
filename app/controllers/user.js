@@ -61,6 +61,11 @@ module.exports = {
       httpOnly: false
     })
 
+    // console.log({
+    //   userInfo: humb(userInfo, {
+    //     deleteParam: ['password', 'account']
+    //   })
+    // })
     // }, 1000)
     ctx.body = {
       status: 200,
@@ -72,7 +77,8 @@ module.exports = {
       }
     }
   },
-  async status(ctx) {
+  async info(ctx) {
+    console.log(ctx.request)
     ctx.body = {
       status: 200,
       message: ctx.session.logged ? '有效状态' : '无效状态',
