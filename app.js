@@ -14,7 +14,9 @@ const bodyParser = require('koa-bodyparser')
 const cors = require('koa2-cors')
 // mongo数据库
 const mongoose = require('mongoose')
-// global.costom.mongoose = mongoose
+global.custom = {
+  mongoose: mongoose
+}
 // log颜色
 const chalk = require('chalk')
 // 获取文件列表

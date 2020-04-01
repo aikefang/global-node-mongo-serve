@@ -10,7 +10,10 @@ let schema = new mongoose.Schema({
 	/**
 	 * 用于卖出类型记录买入的ID
 	 */
-	id: Object,
+	parentId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'record'
+	},
 	// 币种
 	currency: {
 		type: String,
