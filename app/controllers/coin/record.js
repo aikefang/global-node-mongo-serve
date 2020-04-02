@@ -5,10 +5,12 @@ module.exports = {
   async createIn(ctx) {
     const {
       currency,
-      inCount,
-      inPrice,
+      // inCount,
+      // inPrice,
       inTime
     } = ctx.request.body
+    const inCount = parseFloat(ctx.request.body.inCount)
+    const inPrice = parseFloat(ctx.request.body.inPrice)
     // 检查参数
     if (currency === undefined) {
       return ctx.body = {
@@ -68,13 +70,12 @@ module.exports = {
     const {
       id,
       currency,
-      outCount,
-      outPrice,
+      // outCount,
+      // outPrice,
       outTime
     } = ctx.request.body
-    let findParent = await recordModel.findOne({
-      _id: id
-    })
+    const outCount = parseFloat(ctx.request.body.outCount)
+    const outPrice = parseFloat(ctx.request.body.outPrice)
     // console.log(findParent)
     // ctx.body = {
     //   findParent
@@ -134,6 +135,75 @@ module.exports = {
         data: {}
       }
     }
+    const findParent = await recordModel.findOne({
+      _id: id
+    })
+    // const findChild = await recordModel.find({
+    //   parentId: id
+    // })
+    // console.log(id)
+    const soldCount = await recordModel.aggregate([
+      {
+        $match: {
+          parentId: new global.custom.mongoose.Types.ObjectId(id)
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          outCount: 1,
+          type: 1,
+          outPrice: {
+            $multiply: ['$outCount', '$outPrice']
+          }
+        },
+      },
+      {
+        $group: {
+          _id: '$type',
+          outCount: {
+            '$sum': '$outCount'
+          },
+          outPrice: {
+            '$sum': '$outPrice'
+          }
+        },
+      },
+    ])
+    if (soldCount.length > 0) { // 有结果
+      // 如果已售出数量 + 准备售出数量 > 总数量
+      if (soldCount[0].outCount + outCount > findParent.inCount) {
+        return ctx.body = {
+          status: 300001,
+          message: '数量超出限制',
+          data: {
+            inCount: findParent.inCount,
+            soldCount: soldCount[0].outCount,
+            outCount,
+          }
+        }
+      }
+    } else { // 无结果
+      // 准备售出数量 > 总数量
+      if ( outCount > findParent.inCount) {
+        return ctx.body = {
+          status: 300001,
+          message: '数量超出限制',
+          data: {
+            inCount: findParent.inCount,
+            soldCount: 0,
+            outCount,
+          }
+        }
+      }
+    }
+    // ctx.body = {
+    //   findParent,
+    //   // findChild,
+    //   count: findParent.inCount,
+    //   soldCount,
+    // }
+    // return
     const recordEnity = new recordModel({
       type: 'out',
       parentId: id,
@@ -151,7 +221,41 @@ module.exports = {
       }
     }
   },
-  async update() {
+  // 列表
+  async list(ctx) {
+    const size = ctx.request.body.size || 10
+    const page = ctx.request.body.page || 1
+    const {
+      currency
+    } = ctx.request.body
+    if (currency === undefined) {
+      return ctx.body = {
+        status: 500002,
+        message: '缺少参数 => currency',
+        data: {}
+      }
+    }
+    if (currency !== 'ETC') {
+      return ctx.body = {
+        status: 500003,
+        message: '参数错误',
+        data: {
+          currency: ['ETC']
+        }
+      }
+    }
+    const recordList = await recordModel.find({
+      currency,
+      type: 'in',
+    })
+      .skip((page - 1) * size)
+      .limit(size)
+      // .sort(sort)
+    ctx.body = {
+      recordList
+    }
+  },
+  async update(ctx) {
 
   },
 
