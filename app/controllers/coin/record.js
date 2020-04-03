@@ -244,15 +244,106 @@ module.exports = {
         }
       }
     }
-    const recordList = await recordModel.find({
-      currency,
-      type: 'in',
+    let recordList = await recordModel.find(
+      {
+        currency,
+        type: 'in',
+      },
+      {
+        __v: 0
+      }
+    )
+      .skip((page - 1) * parseInt(size))
+      .limit(parseInt(size))
+      .lean()
+
+    recordList = recordList.map(data => {
+      return {
+        ...data,
+        totalPrice: data.inCount * data.inPrice,
+      }
     })
-      .skip((page - 1) * size)
-      .limit(size)
-      // .sort(sort)
+
+
+    const ids = recordList.map(data => `${data._id}`)
+
+
+    const recordChildList = await recordModel.find(
+      {
+        currency,
+        type: 'out',
+        parentId: {
+          $in: ids
+        }
+      },
+      {
+        __v: 0
+      }
+    ).lean()
+
+    // 处理child
+    const recordChildObj = {}
+    recordChildList.forEach(data => {
+      let totalPrice = data.outCount * data.outPrice
+      let parentIndex = ids.indexOf(`${data.parentId}`)
+      // console.log(parentIndex)
+      // 原价
+      let originPrice = recordList[parentIndex].inPrice
+      // 盈利
+      let profit = totalPrice - data.outCount * originPrice
+
+      if (!recordChildObj[data.parentId]) {
+        recordChildObj[data.parentId] = [{
+          ...data,
+          totalPrice,
+          profit,
+        }]
+      } else {
+        recordChildObj[data.parentId].push({
+          ...data,
+          totalPrice,
+          profit,
+        })
+      }
+    })
+
+    // 处理parent
+    const recordObj = {}
+    recordList.forEach(data => {
+      recordObj[data._id] = {
+        ...data,
+        children: recordChildObj[`${data._id}`] || []
+      }
+    })
+    let list = []
+    for (let item in recordObj) {
+      list.push(recordObj[item])
+    }
+
+    list = list.map(data => {
+      // 总售出个数
+      let allSoldCount = 0
+      // 总盈利
+      let allProfit = 0
+      if (data.children.length > 0) {
+        data.children.forEach(data => {
+          allSoldCount += data.outCount
+          allProfit += data.profit
+        })
+      }
+      return {
+        ...data,
+        allSoldCount,
+        allProfit,
+      }
+    })
+
     ctx.body = {
-      recordList
+      status: 200,
+      message: '成功',
+      data: {
+        list
+      }
     }
   },
   async update(ctx) {
