@@ -117,7 +117,7 @@ fileList.run().then((data) => {
   })
 })
 // 错误log
-app.on('error', err => {
+app.on('error', async (err, ctx) => {
   console.log(err)
 })
 // 错误view渲染

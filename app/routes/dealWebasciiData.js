@@ -1,12 +1,13 @@
 const Router = require('koa-router') // koa 路由中间件
 const router = Router()
 let controller = require('../controllers/dealWebasciiData')
-router.get('/article', controller.article)
-router.get('/articleDraft', controller.articleDraft)
-router.get('/articleHistory', controller.articleHistory)
-router.get('/user', controller.user)
-router.get('/category', controller.category)
-router.get('/banner', controller.banner)
-router.get('/nav', controller.nav)
+const ai = require('../../lib/abnormal-interception')
+router.get('/article', ai(controller.article))
+router.get('/articleDraft', ai(controller.articleDraft))
+router.get('/articleHistory', ai(controller.articleHistory))
+router.get('/user', ai(controller.user))
+router.get('/category', ai(controller.category))
+router.get('/banner', ai(controller.banner))
+router.get('/nav', ai(controller.nav))
 
 module.exports = router
