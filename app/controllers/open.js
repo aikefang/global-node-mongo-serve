@@ -16,12 +16,13 @@ module.exports = {
     // testModel.create(testEnity, (err, data) => {
     //   if (err) return console.log(err)
     // })
-    ctx.body = {
-      status: 200,
-      message: '成功2',
-      data: {
-
-      }
-    }
+    ctx.response.redirect('/about')
+    // ctx.body = {
+    //   status: 200,
+    //   message: '成功2',
+    //   data: {
+    //
+    //   }
+    // }
   },
 }

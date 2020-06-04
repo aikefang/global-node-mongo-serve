@@ -40,4 +40,4 @@ let schema = new mongoose.Schema({
 	}
 })
 
-module.exports = db.model('webascii_biji_catrgory', schema)
+module.exports = db.model('webascii_biji_category', schema)

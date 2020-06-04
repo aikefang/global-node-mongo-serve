@@ -23,6 +23,16 @@ let schema = new mongoose.Schema({
 	article_classify_level_first: Number,
 	// 二级分类
 	article_classify_level_second: Number,
+	// 一级分类(新)
+	levelFirst: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'webascii_biji_category'
+	},
+	// 二级分类(新)
+	levelSecond: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'webascii_biji_category'
+	},
 	// 文章预览图
 	article_image_view: String,
 	// 创建时间

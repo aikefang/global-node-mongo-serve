@@ -30,13 +30,24 @@ module.exports = {
       let author = await userModel.findOne({
         id: data.author_id
       })
+
+      let level1 = await webasciiBijiCategoryModel.findOne({
+        id: data.article_classify_level_first
+      })
+      let level2 = await webasciiBijiCategoryModel.findOne({
+        id: data.article_classify_level_second
+      })
+
+
       if (article.length == 0) {
         // 新增
         let webasciiBijiArticleEnity = new webasciiBijiArticleModel({
           ...data,
           c_time: new Date(data.c_time),
           m_time: data.m_time ? new Date(data.m_time) : null,
-          author: author._id
+          author: author._id,
+          levelFirst: level1._id,
+          levelSecond: level2._id,
         })
 
         // 创建用户
@@ -54,7 +65,9 @@ module.exports = {
               ...data,
               c_time: new Date(data.c_time),
               m_time: data.m_time ? new Date(data.m_time) : null,
-              author: author._id
+              author: author._id,
+              levelFirst: level1,
+              levelSecond: level2,
             }
           },
           {
@@ -100,7 +113,17 @@ module.exports = {
       let origin = await webasciiBijiArticleModel.findOne({
         id: data.origin_id
       })
-      console.log(origin)
+      let originObj = {}
+      if (origin && origin._id) {
+        originObj.origin = origin._id
+      }
+      let level1 = await webasciiBijiCategoryModel.findOne({
+        id: data.article_classify_level_first
+      })
+      let level2 = await webasciiBijiCategoryModel.findOne({
+        id: data.article_classify_level_second
+      })
+      // console.log(origin)
       if (article.length == 0) {
         // 新增
         let webasciiBijiArticleHistoryEnity = new webasciiBijiArticleHistoryModel({
@@ -108,7 +131,10 @@ module.exports = {
           c_time: new Date(data.c_time),
           m_time: data.m_time ? new Date(data.m_time) : null,
           author: author._id,
-          origin: origin._id
+          // origin: origin._id,
+          ...originObj,
+          levelFirst: level1._id,
+          levelSecond: level2._id,
         })
 
         // 创建用户
@@ -127,7 +153,10 @@ module.exports = {
               c_time: new Date(data.c_time),
               m_time: data.m_time ? new Date(data.m_time) : null,
               author: author._id,
-              origin: origin._id
+              // origin: origin._id,
+              ...originObj,
+              levelFirst: level1._id,
+              levelSecond: level2._id,
             }
           },
           {
@@ -137,7 +166,9 @@ module.exports = {
     }
     let article = await webasciiBijiArticleHistoryModel.find({
       origin_id: 437
-    }).populate('origin')
+    })
+      .populate('origin')
+      .populate('author')
     ctx.body = {
       article
     }
@@ -163,32 +194,56 @@ module.exports = {
       let author = await userModel.findOne({
         id: data.author_id
       })
+      let level1 = await webasciiBijiCategoryModel.findOne({
+        id: data.article_classify_level_first
+      })
+      let level2 = await webasciiBijiCategoryModel.findOne({
+        id: data.article_classify_level_second
+      })
       if (article.length == 0) {
-        // 新增
-        let webasciiBijiArticleDraftEnity = new webasciiBijiArticleDraftModel({
+        let obj = {
           ...data,
           c_time: new Date(data.c_time),
           m_time: data.m_time ? new Date(data.m_time) : null,
-          author: author._id
-        })
+          author: author._id,
+          // levelFirst: level1._id,
+          // levelSecond: level2._id,
+        }
+        if (level1 && level1._id) {
+          obj.levelFirst = level1._id
+        }
+        if (level2 && level2._id) {
+          obj.levelFirst = level2._id
+        }
+        // 新增
+        let webasciiBijiArticleDraftEnity = new webasciiBijiArticleDraftModel(obj)
 
         // 创建用户
         webasciiBijiArticleDraftModel.create(webasciiBijiArticleDraftEnity, (err, data) => {
           if (err) return console.log(err)
         })
       } else {
+        let obj = {
+          ...data,
+          c_time: new Date(data.c_time),
+          m_time: data.m_time ? new Date(data.m_time) : null,
+          author: author._id,
+          // levelFirst: level1._id,
+          // levelSecond: level2._id,
+        }
+        if (level1 && level1._id) {
+          obj.levelFirst = level1._id
+        }
+        if (level2 && level2._id) {
+          obj.levelFirst = level2._id
+        }
         // 更新
         await webasciiBijiArticleDraftModel.updateOne(
           {
             id: data.id
           },
           {
-            $set: {
-              ...data,
-              c_time: new Date(data.c_time),
-              m_time: data.m_time ? new Date(data.m_time) : null,
-              author: author._id
-            }
+            $set: obj
           },
           {
             'upsert': false

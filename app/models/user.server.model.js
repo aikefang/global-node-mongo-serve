@@ -14,7 +14,10 @@ let schema = new mongoose.Schema({
 	// 最后登录时间
 	last_login_time: Date,
 	// 创建时间
-	c_time: Date,
+	c_time: {
+		type: Date,
+		default: Date.now
+	},
 	// 更新时间
 	m_time: Date,
 	/**

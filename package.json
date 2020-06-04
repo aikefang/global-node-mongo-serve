@@ -30,6 +30,7 @@
     "koa-views": "^6.2.1",
     "koa2-cors": "^2.0.6",
     "ldapjs": "^1.0.2",
+    "lodash": "^4.17.15",
     "mime-types": "^2.1.24",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
