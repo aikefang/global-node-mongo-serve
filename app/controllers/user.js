@@ -80,7 +80,6 @@ module.exports = {
   },
   // 获取用户有效状态
   async info(ctx) {
-    // console.log(ctx.request)
     ctx.body = {
       status: 200,
       message: ctx.session.logged ? '有效状态' : '无效状态',

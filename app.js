@@ -57,6 +57,7 @@ app.use(koaStatic(__dirname + '/public'))
 app.use(koaStatic(__dirname + '/public', {
   setHeaders: (res, src, stats) => res.setHeader('Content-Type', contentType(src)), // 给静态资源加上正确的 header, 否则浏览器会识别错误
 }))
+mongoose.set('useFindAndModify', false)
 
 global.db = mongoose.createConnection(
   config.mongo.url,
