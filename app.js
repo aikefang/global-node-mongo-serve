@@ -1,6 +1,30 @@
 process.env.TZ = 'Asia/Shanghai'
 const config = require('./config/config')
 const Koa = require('koa')
+const multer = require('koa-multer')
+const uuid = require('node-uuid')
+const fnv = require('fnv-plus')
+const qiniuTool = require('qiniu-tool')
+
+// 配置上传
+const storage = multer.diskStorage({
+  // 文件保存路径
+  async destination(req, file, cb) {
+    cb(null, 'upload')
+  },
+  // 修改文件名称
+  async filename(req, file, cb) {
+    const fileFormat = (file.originalname).split(".");  // 以点分割成数组，数组的最后一项就是后缀名
+    const suffix = '.' + fileFormat[fileFormat.length - 1]
+    const name = file.originalname.replace(suffix, '')
+    const v1 = uuid.v1()
+    const hash = `${fnv.hash(v1, 64).str()}`
+    cb(null, `${name}-${hash}${suffix}`)
+  }
+})
+//加载配置
+const upload = multer({storage: storage})
+
 // 路由
 const Router = require('koa-router')
 // 视图
@@ -15,7 +39,8 @@ const cors = require('koa2-cors')
 // mongo数据库
 const mongoose = require('mongoose')
 global.custom = {
-  mongoose: mongoose
+  mongoose: mongoose,
+  upload: upload
 }
 // log颜色
 const chalk = require('chalk')
@@ -25,7 +50,7 @@ const fileList = require('get-file-list')
 const {join, normalize, relative, resolve} = require('path')
 // session
 const session = require('koa-session')
-const { contentType } = require('mime-types')
+const {contentType} = require('mime-types')
 
 const app = new Koa()
 // 处理前端跨域的配置

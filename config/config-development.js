@@ -6,3 +6,4 @@ exports.sissionOption = config.mongoService.sissionOption
 exports.mysql = {
   webascii: config.server.mysql
 }
+exports.server = config.server
