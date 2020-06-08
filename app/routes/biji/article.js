@@ -6,5 +6,8 @@ router.get('/list', ai(controller.list))
 router.get('/details', ai(controller.details))
 router.get('/redirect', ai(controller.redirect))
 router.get('/historyList', ai(controller.historyList))
+router.post('/historyDelete', ai(controller.historyDelete))
+router.post('/zan', ai(controller.zan))
+router.post('/edit', ai(controller.editDetail))
 
 module.exports = router
