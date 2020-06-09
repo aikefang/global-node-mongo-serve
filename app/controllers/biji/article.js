@@ -279,6 +279,144 @@ module.exports = {
     // }
 
   },
+  async historyDetails(ctx) {
+    const id = ctx.request.query.id
+    const imageMogr2 = ctx.request.query.imageMogr2
+    if (!global.custom.mongoose.Types.ObjectId.isValid(id)) {
+      return ctx.body = {
+        status: 500001,
+        message: '未知错误',
+        data: {
+          id
+        }
+      }
+    }
+    // 查询详情 && 更新浏览次数
+    const details = await articleHistoryModel.findOneAndUpdate(
+      {
+        _id: id
+      },
+      {
+        $inc: {
+          views: 1
+        }
+      },
+      {
+        new: true,
+        upsert: false
+      }
+    )
+      .populate('author', {
+        id: 1,
+        _id: 1,
+        nickname: 1,
+        head_img: 1,
+      })
+      .populate('levelFirst', {
+        id: 1,
+        _id: 1,
+        title: 1,
+        is_enable: 1,
+        parent: 1,
+        parent_id: 1,
+      })
+      .populate('levelSecond', {
+        id: 1,
+        _id: 1,
+        title: 1,
+        isEnable: 1,
+        parent: 1,
+        parentId: 1,
+      })
+      .lean()
+
+    if (!details) {
+      return ctx.body = {
+        status: 200004,
+        message: '数据不存在',
+        data: {}
+      }
+    }
+
+    // 当前用户信息
+    const viewUserInfo = ctx.session
+
+    let isAuthor = false
+    // 当前用户已登录 && 是否为作者
+    if (viewUserInfo.userInfo && viewUserInfo.userInfo._id.toString() === details.author._id.toString()) {
+      isAuthor = true
+    }
+
+    // 获取总数量 estimatedDocumentCount 和 countDocuments 都可获取总数
+    // const allArticleNum = await articleModel.estimatedDocumentCount()
+    const allArticleNum = await articleModel.countDocuments()
+
+    // 获取总浏览量
+    const [allViews] = await articleModel.aggregate([
+      {
+        $match: {
+          author: details.author._id
+        }
+      },
+      {
+        $group: {
+          _id: '$author',
+          total: {
+            $sum: '$views'
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+        }
+      }
+    ])
+
+    const newList = await articleModel.find({
+      is_enable: 1
+    }, {
+      id: 1,
+      title: 1,
+      article_image_view: 1,
+    })
+      .limit(20)
+      .sort({
+        c_time: -1
+      })
+      .lean()
+
+    const note = humb(details)
+    note.author.headImg = note.author.headImg + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/40'
+    note.simplifyCTime = simplifyTime(note.cTime, `记录`)
+    note.simplifyMTime = simplifyTime(note.mTime, `更新`)
+    note.zanStr = num2Str(note.zan)
+
+    // 替换旧图片
+    note.content.replace(/(webascii\/old_pictures\/uploads\/)(.*?)(\.png|\.jpg)/g, (res, val1, val2, val3, index, content) => {
+      if (res.indexOf('_s.png') >= 0) {
+        note.content = note.content.replace(res, res.replace(val3, val3 + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80'))
+      }
+    })
+    // 替换新图片
+    note.content.replace(/(webascii\/files\/)(.*?)(\.png|\.jpg)/g, (res, val1, val2, val3, index, content) => {
+      note.content = note.content.replace(res, res.replace(val3, val3 + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80'))
+      // console.log(res)
+    })
+
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: {
+        note,
+        isAuthor,
+        allArticleNum,
+        allViews: allViews.total,
+        allViewsStr: num2Str(allViews.total),
+        newNoteList: humb(newList)
+      }
+    }
+  },
   async historyDelete(ctx) {
     const id = ctx.request.query.id
 
@@ -382,10 +520,7 @@ module.exports = {
     allContent.levelFirst && (data.levelFirst = allContent.levelFirst);
     allContent.levelSecond && (data.levelSecond = allContent.levelSecond);
 
-    allContent.article_image_view && (data.article_image_view = allContent.article_image_view);
-    // (data.recommend = allContent.recommend)
-    // (data.hot = allContent.hot)
-    // (data.is_enable = allContent.is_enable)
+    allContent.article_image_view && (data.article_image_view = allContent.article_image_view)
 
     const changeBoolean = [false]
 
@@ -434,6 +569,7 @@ module.exports = {
     // 新增
     const articleHistoryEnity = await new articleHistoryModel({
       ...articleContent,
+      views: 0,
       c_time: new Date()
     })
 

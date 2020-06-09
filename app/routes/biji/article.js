@@ -7,6 +7,7 @@ router.get('/details', ai(controller.details))
 router.get('/redirect', ai(controller.redirect))
 router.get('/historyList', ai(controller.historyList))
 router.post('/historyDelete', ai(controller.historyDelete))
+router.get('/historyDetails', ai(controller.historyDetails))
 router.post('/zan', ai(controller.zan))
 router.post('/edit', ai(controller.editDetail))
 
