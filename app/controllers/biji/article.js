@@ -312,22 +312,26 @@ module.exports = {
         nickname: 1,
         head_img: 1,
       })
-      .populate('levelFirst', {
-        id: 1,
+      .populate('origin', {
         _id: 1,
         title: 1,
-        is_enable: 1,
-        parent: 1,
-        parent_id: 1,
       })
-      .populate('levelSecond', {
-        id: 1,
-        _id: 1,
-        title: 1,
-        isEnable: 1,
-        parent: 1,
-        parentId: 1,
-      })
+      // .populate('levelFirst', {
+      //   id: 1,
+      //   _id: 1,
+      //   title: 1,
+      //   is_enable: 1,
+      //   parent: 1,
+      //   parent_id: 1,
+      // })
+      // .populate('levelSecond', {
+      //   id: 1,
+      //   _id: 1,
+      //   title: 1,
+      //   isEnable: 1,
+      //   parent: 1,
+      //   parentId: 1,
+      // })
       .lean()
 
     if (!details) {
