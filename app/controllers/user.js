@@ -80,12 +80,28 @@ module.exports = {
   },
   // 获取用户有效状态
   async info(ctx) {
+    const userInfo = {}
+
+    if (ctx.session.userInfo) {
+      const userRes = await userModel.findOne({
+        _id: ctx.session.userInfo._id
+      })
+        .lean()
+      if (userRes) {
+        userInfo.nickname = userRes.nickname
+        userInfo.headImg = userRes.head_img
+      }
+    }
+
     ctx.body = {
       status: 200,
       message: ctx.session.logged ? '有效状态' : '无效状态',
       data: {
-        userInfo: ctx.session.userInfo || {},
-        userStatus: ctx.session.logged || false
+        userInfo: {
+          ...(ctx.session.userInfo || {}),
+          ...userInfo
+        },
+        userStatus: ctx.session.logged || false,
       }
     }
   },
