@@ -34,6 +34,7 @@ module.exports = {
         is_enable: 1,
         parent: 1,
         parent_id: 1,
+        seo: 1,
       })
       .populate('levelSecond', {
         id: 1,
@@ -42,6 +43,7 @@ module.exports = {
         isEnable: 1,
         parent: 1,
         parentId: 1,
+        seo: 1,
       })
       .lean()
 
@@ -83,6 +85,102 @@ module.exports = {
         list
       }
     }
+  },
+  async search(ctx) {
+    const pageSize = parseInt(ctx.request.query.pageSize, 10) || 20
+    const pageNum = parseInt(ctx.request.query.pageNum, 10) || 1
+    const {
+      keyword,
+      levelFirst,
+      levelSecond,
+    } = ctx.request.query
+
+    const reg = new RegExp(keyword, 'i')
+    const type = {}
+    if (levelFirst || levelSecond) {
+      if (levelFirst) {
+        type.levelFirst = levelFirst
+      }
+      if (levelSecond) {
+        type.levelSecond = levelSecond
+      }
+    }
+    const params = {
+      ...type
+    }
+    if (keyword) {
+      params.title = {
+        $regex: reg
+      }
+    }
+
+    const res = await articleModel
+      .find(params)
+      .sort({
+        c_time: -1
+      })
+      .skip((pageNum - 1) * pageSize)
+      .limit(pageSize)
+      .populate('author', {
+        id: 1,
+        _id: 1,
+        nickname: 1,
+        head_img: 1,
+      })
+      .populate('levelFirst', {
+        id: 1,
+        _id: 1,
+        title: 1,
+        is_enable: 1,
+        parent: 1,
+        parent_id: 1,
+        seo: 1,
+      })
+      .populate('levelSecond', {
+        id: 1,
+        _id: 1,
+        title: 1,
+        isEnable: 1,
+        parent: 1,
+        parentId: 1,
+        seo: 1,
+      })
+      .lean()
+
+    const list = humb(res)
+    list.forEach(data => {
+      if (!!keyword) {
+        data.title = data.title.replace(reg, (res, val, index) => {
+          return `<span style="color: red">${res}</span>`
+        })
+      }
+      if (data.articleImageView) {
+        data.articleImageView2 = data.articleImageView + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80|imageView2/1/w/160/h/90'
+        data.articleImageViewPc = data.articleImageView + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80|imageView2/1/w/160/h/90'
+        data.articleImageViewMobile = data.articleImageView + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80|imageView2/1/w/80/h/45'
+      } else {
+        data.articleImageView2 = '//static.webascii.cn/webascii/files/default-view.png?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80|imageView2/1/w/160/h/90'
+        data.articleImageViewPc = '//static.webascii.cn/webascii/files/default-view.png?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80|imageView2/1/w/160/h/90'
+        data.articleImageViewMobile = '//static.webascii.cn/webascii/files/default-view.png?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80|imageView2/1/w/80/h/45'
+      }
+    })
+
+    const total = await articleModel.countDocuments(params)
+
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: {
+        note: {
+          list,
+          keyword,
+          pageSize,
+          pageNum,
+          total,
+        }
+      }
+    }
+
   },
   async details(ctx) {
     const id = ctx.request.query.id

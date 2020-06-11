@@ -313,11 +313,182 @@ module.exports = {
       let category = await webasciiBijiCategoryModel.find({
         id: data.id
       })
+
+      const ca = [
+        {
+          "title": "前端",
+          seo: 'web'
+        },
+        {
+          "title": "后端",
+          seo: 'dev'
+        },
+        {
+          "title": "数据库",
+          seo: 'database'
+        },
+        {
+          "title": "服务器配置",
+          seo: 'server'
+        },
+        {
+          "title": "MAC 教程",
+          seo: 'mac'
+        },
+        {
+          "title": "开发工具",
+          seo: 'dev_tools'
+        },
+        {
+          "title": "原生JavaScript",
+          seo: 'javascript'
+        },
+        {
+          "title": "Vue",
+          seo: 'vue'
+        },
+        {
+          "title": "jQuery",
+          seo: 'jquery'
+        },
+        {
+          "title": "AngularJS",
+          seo: 'angular'
+        },
+        {
+          "title": "Node.js",
+          seo: 'nodejs'
+        },
+        {
+          "title": "java",
+          seo: 'java'
+        },
+        {
+          "title": "PHP",
+          seo: 'php'
+        },
+        {
+          "title": "Python",
+          seo: 'python'
+        },
+        {
+          "title": "正则表达式",
+          seo: 'regular'
+        },
+        {
+          "title": "Mysql",
+          seo: 'mysql'
+        },
+        {
+          "title": "centOS",
+          seo: 'centos'
+        },
+        {
+          "title": "linux",
+          seo: 'linux'
+        },
+        {
+          "title": "终端使用",
+          seo: 'terminal'
+        },
+        {
+          "title": "MAC工作环境安装",
+          seo: 'mac_environment'
+        },
+        {
+          "title": "HTML/CSS",
+          seo: 'html_css'
+        },
+        {
+          "title": "AppCan",
+          seo: 'appcan'
+        },
+        {
+          "title": "Sql Server",
+          seo: 'sql_server'
+        },
+        {
+          "title": "sublime",
+          seo: 'sublime'
+        },
+        {
+          "title": "Git",
+          seo: 'git'
+        },
+        {
+          "title": "WebStorm",
+          seo: 'webstorm'
+        },
+        {
+          "title": "其他",
+          seo: 'other'
+        },
+        {
+          "title": "apache",
+          seo: 'apache'
+        },
+        {
+          "title": "Nginx",
+          seo: 'nginx'
+        },
+        {
+          "title": "MongoDB",
+          seo: 'mongodb'
+        },
+        {
+          "title": "Nuxt.js",
+          seo: 'nuxtjs'
+        },
+        {
+          "title": "前端架构",
+          seo: 'web_advanced'
+        },
+        {
+          "title": "webpack3",
+          seo: 'webpack3'
+        },
+        {
+          "title": "webpack4",
+          seo: 'webpack4'
+        },
+        {
+          "title": "electron客户端",
+          seo: 'electron'
+        },
+        {
+          "title": "Jenkins",
+          seo: 'jenkins'
+        },
+        {
+          "title": "小程序",
+          seo: 'mini_programs'
+        },
+        {
+          "title": "Charles",
+          seo: 'charles'
+        },
+        {
+          "title": "Flutter",
+          seo: 'flutter'
+        },
+        {
+          "title": "Service Worker",
+          seo: 'service_worker'
+        },
+        {
+          "title": "Dart",
+          seo: 'dart'
+        }
+
+      ]
+
+
+
       // let author = await userModel.findOne({
       //   id: data.author_id
       // })
       if (category.length == 0) {
-        console.log(data.is_parent)
+        // console.log(data.is_parent)
         // 如果当前是父级
         if (data.is_parent === 1) {
           // 新增
@@ -325,6 +496,7 @@ module.exports = {
             ...data,
             c_time: new Date(data.c_time),
             m_time: data.m_time ? new Date(data.m_time) : null,
+            seo: ca.find(caData => caData.title === data.title).seo
           })
 
           // 创建用户
@@ -341,7 +513,8 @@ module.exports = {
             ...data,
             c_time: new Date(data.c_time),
             m_time: data.m_time ? new Date(data.m_time) : null,
-            parent: categoryParent._id
+            parent: categoryParent._id,
+            seo: ca.find(caData => caData.title === data.title).seo
           })
 
           // 创建用户
@@ -362,6 +535,7 @@ module.exports = {
                 ...data,
                 c_time: new Date(data.c_time),
                 m_time: data.m_time ? new Date(data.m_time) : null,
+                seo: ca.find(caData => caData.title === data.title).seo
               }
             },
             {
@@ -381,7 +555,8 @@ module.exports = {
                 ...data,
                 c_time: new Date(data.c_time),
                 m_time: data.m_time ? new Date(data.m_time) : null,
-                parent: categoryParent._id
+                parent: categoryParent._id.toString(),
+                seo: ca.find(caData => caData.title === data.title).seo
               }
             },
             {

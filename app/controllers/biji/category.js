@@ -31,6 +31,15 @@ module.exports = {
         .sort({
           sort_index: -1
         })
+        .populate('parent', {
+          id: 1,
+          _id: 1,
+          title: 1,
+          is_enable: 1,
+          parent: 1,
+          parent_id: 1,
+          seo: 1,
+        })
         .lean()
     } else {
       params.parent_id = 0
@@ -89,7 +98,7 @@ module.exports = {
 
     const redirect = {}
     ca.forEach(data => {
-      redirect[data.id] = data._id
+      redirect[data.id] = data.seo
     })
 
     ctx.body = {

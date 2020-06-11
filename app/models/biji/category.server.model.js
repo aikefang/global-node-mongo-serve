@@ -9,9 +9,10 @@ let schema = new mongoose.Schema({
 	},
 	parent: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'webascii_biji_catrgory'
+		ref: 'webascii_biji_category'
 	},
 	title: String,
+	seo: String,
 	// 是否启用 默认1  0：不启用，1：启用
 	is_enable: {
 		type: Number,
