@@ -2,6 +2,7 @@
 
 const articleModel = require('../../models/biji/article.server.model')
 const articleHistoryModel = require('../../models/biji/article-history.server.model')
+const articleDraftModel = require('../../models/biji/article-draft.server.model')
 // const categoryModel = require('../../models/biji/category.server.model')
 // const userModel = require('../../models/user.server.model')
 const humb = require('../../../lib/hump')
@@ -539,6 +540,27 @@ module.exports = {
       }
     }
 
+    const hisRes = await articleHistoryModel.findOne({
+      _id: id
+    }, {
+      author: 1
+    })
+    if (!hisRes) {
+      return ctx.body = {
+        status: 200004,
+        message: '数据不存在',
+        data: {}
+      }
+    }
+    if (hisRes.author.toString() !== ctx.session.userInfo._id) {
+      return ctx.body = {
+        status: 200005,
+        message: '没有权限删除',
+        data: {}
+      }
+    }
+
+
     const res = await articleHistoryModel.deleteOne({
       _id: global.custom.mongoose.Types.ObjectId(id)
     })
@@ -581,7 +603,7 @@ module.exports = {
     }
   },
   // 编辑文章
-  async editDetail(ctx) {
+  async edit(ctx) {
     const allContent = ctx.request.body.allContent
 
     const articleContent = await articleModel.findOne({
@@ -600,10 +622,6 @@ module.exports = {
         data: {}
       }
     }
-    // else {
-    //   articleContent.author = articleContent.author._id
-    // }
-
     if (!articleContent) {
       ctx.body = {
         status: 200004,
@@ -666,8 +684,6 @@ module.exports = {
     articleContent.origin = articleContent._id
     delete articleContent._id
 
-    // articleHistoryModel.
-    // console.log(articleContent)
     // 新增
     const articleHistoryEnity = await new articleHistoryModel({
       ...articleContent,
@@ -745,5 +761,321 @@ module.exports = {
         zanStr: num2Str(details.zan)
       }
     }
-  }
+  },
+  async draftList(ctx) {
+    // console.log(ctx.session.userInfo._id)
+    const res = await articleDraftModel.find({
+      author: global.custom.mongoose.Types.ObjectId(ctx.session.userInfo._id)
+    })
+      .sort({
+        c_time: -1
+      })
+      .populate('author', {
+        id: 1,
+        _id: 1,
+        nickname: 1,
+        head_img: 1,
+      })
+      .populate('levelFirst', {
+        id: 1,
+        _id: 1,
+        title: 1,
+        is_enable: 1,
+        parent: 1,
+        parent_id: 1,
+        seo: 1,
+      })
+      .populate('levelSecond', {
+        id: 1,
+        _id: 1,
+        title: 1,
+        isEnable: 1,
+        parent: 1,
+        parentId: 1,
+        seo: 1,
+      })
+      .lean()
+
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: {
+        list: humb(res)
+      }
+    }
+  },
+  async draftUpdate(ctx) {
+    const id = ctx.request.body.id
+    const data = ctx.request.body.data || {}
+    if (!id) {
+      return ctx.body = {
+        status: 500002,
+        message: '缺少参数 => id',
+        data: {}
+      }
+    }
+
+    if (!global.custom.mongoose.Types.ObjectId.isValid(id)) {
+      return ctx.body = {
+        status: 500001,
+        message: '未知错误',
+        data: {
+          id
+        }
+      }
+    }
+
+    const draftRes = await articleDraftModel.findOne({
+      _id: id
+    }, {
+      author: 1
+    })
+    if (!draftRes) {
+      return ctx.body = {
+        status: 200004,
+        message: '数据不存在',
+        data: {}
+      }
+    }
+    if (draftRes.author.toString() !== ctx.session.userInfo._id) {
+      return ctx.body = {
+        status: 200005,
+        message: '没有权限修改',
+        data: {}
+      }
+    }
+
+    // 更新
+    const res = await articleDraftModel.updateOne(
+      {
+        _id: global.custom.mongoose.Types.ObjectId(id)
+      },
+      {
+        $set: {
+          ...data,
+          m_time: new Date()
+        }
+      },
+      {
+        'upsert': false
+      })
+      .lean()
+
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: {
+        ...res
+      }
+    }
+  },
+  async draftDetails(ctx) {
+    const id = ctx.request.body.id
+    if (!id) {
+      return ctx.body = {
+        status: 500002,
+        message: '缺少参数 => id',
+        data: {}
+      }
+    }
+
+    if (!global.custom.mongoose.Types.ObjectId.isValid(id)) {
+      return ctx.body = {
+        status: 500001,
+        message: '未知错误',
+        data: {
+          id
+        }
+      }
+    }
+
+    const draftRes = await articleDraftModel.findOne({
+      _id: id
+    }, {
+      author: 1
+    })
+
+    if (!draftRes) {
+      return ctx.body = {
+        status: 200004,
+        message: '数据不存在',
+        data: {}
+      }
+    }
+
+    if (draftRes.author.toString() !== ctx.session.userInfo._id) {
+      return ctx.body = {
+        status: 200005,
+        message: '没有权限查看',
+        data: {}
+      }
+    }
+
+
+    const res = await articleDraftModel.findOne({
+      _id: id
+    })
+      .populate('author', {
+        id: 1,
+        _id: 1,
+        nickname: 1,
+        head_img: 1,
+      })
+      .populate('levelFirst', {
+        id: 1,
+        _id: 1,
+        title: 1,
+        is_enable: 1,
+        parent: 1,
+        parent_id: 1,
+        seo: 1,
+      })
+      .populate('levelSecond', {
+        id: 1,
+        _id: 1,
+        title: 1,
+        isEnable: 1,
+        parent: 1,
+        parentId: 1,
+        seo: 1,
+      })
+      .lean()
+
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: {
+        ...humb(res)
+      }
+    }
+  },
+  async draftCreate(ctx) {
+    const articleDraftEnity = await new articleDraftModel({
+      author: global.custom.mongoose.Types.ObjectId(ctx.session.userInfo._id)
+    })
+    // 创建历史记录
+    const res = await articleDraftModel.create(articleDraftEnity)
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: humb(res.toObject())
+    }
+  },
+  async draftDelete(ctx) {
+    const id = ctx.request.body.id
+    if (!id) {
+      return ctx.body = {
+        status: 500002,
+        message: '缺少参数 => id',
+        data: {}
+      }
+    }
+
+    if (!global.custom.mongoose.Types.ObjectId.isValid(id)) {
+      return ctx.body = {
+        status: 500001,
+        message: '未知错误',
+        data: {
+          id
+        }
+      }
+    }
+
+    const draftRes = await articleDraftModel.findOne({
+      _id: id
+    }, {
+      author: 1
+    })
+    if (!draftRes) {
+      return ctx.body = {
+        status: 200004,
+        message: '数据不存在',
+        data: {}
+      }
+    }
+    if (draftRes.author.toString() !== ctx.session.userInfo._id) {
+      return ctx.body = {
+        status: 200005,
+        message: '没有权限删除',
+        data: {}
+      }
+    }
+
+    const res = await articleDraftModel.deleteOne({
+      _id: global.custom.mongoose.Types.ObjectId(id)
+    }).lean()
+
+    ctx.body = {
+      status: 200,
+      message: '删除成功',
+      data: {
+        ...res
+      }
+    }
+  },
+  async draftPublish(ctx) {
+    const id = ctx.request.body.id
+    if (!id) {
+      return ctx.body = {
+        status: 500002,
+        message: '缺少参数 => id',
+        data: {}
+      }
+    }
+
+    if (!global.custom.mongoose.Types.ObjectId.isValid(id)) {
+      return ctx.body = {
+        status: 500001,
+        message: '未知错误',
+        data: {
+          id
+        }
+      }
+    }
+
+    const draftRes = await articleDraftModel.findOne({
+      _id: id
+    })
+    if (!draftRes) {
+      return ctx.body = {
+        status: 200004,
+        message: '数据不存在',
+        data: {}
+      }
+    }
+    if (draftRes.author.toString() !== ctx.session.userInfo._id) {
+      return ctx.body = {
+        status: 200005,
+        message: '没有权限',
+        data: {}
+      }
+    }
+
+    // 发布文章
+    const articleEnity = await new articleModel({
+      author: global.custom.mongoose.Types.ObjectId(ctx.session.userInfo._id),
+      m_time: null,
+      title: draftRes.title,
+      article_describe: draftRes.article_describe,
+      content: draftRes.content,
+      article_image_view: draftRes.article_image_view,
+      levelFirst: draftRes.levelFirst,
+      levelSecond: draftRes.levelSecond,
+    })
+    // 发布文章
+    const res = await articleModel.create(articleEnity)
+
+    const articleData = humb(res.toObject())
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: articleData
+    }
+    // 删除草稿
+    if (articleData._id) {
+      await articleDraftModel.deleteOne({
+        _id: draftRes._id
+      })
+    }
+  },
 }

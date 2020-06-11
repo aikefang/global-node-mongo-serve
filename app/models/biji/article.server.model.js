@@ -18,7 +18,10 @@ let schema = new mongoose.Schema({
 		ref: 'user'
 	},
 	// 浏览量
-	views: Number,
+	views: {
+		type: Number,
+		default: 0
+	},
 	// 一级分类
 	article_classify_level_first: Number,
 	// 二级分类
@@ -64,7 +67,10 @@ let schema = new mongoose.Schema({
 		type: Number,
 		default: 1
 	},
-	zan: Number,
+	zan: {
+		type: Number,
+		default: 0
+	},
 })
 
 module.exports = db.model('webascii_biji_article', schema)
