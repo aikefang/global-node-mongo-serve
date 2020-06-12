@@ -9,5 +9,6 @@ router.get('/user', ai(controller.user))
 router.get('/category', ai(controller.category))
 router.get('/banner', ai(controller.banner))
 router.get('/nav', ai(controller.nav))
+router.get('/book', ai(controller.book))
 
 module.exports = router

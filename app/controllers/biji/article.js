@@ -623,7 +623,7 @@ module.exports = {
       }
     }
     if (!articleContent) {
-      ctx.body = {
+      return ctx.body = {
         status: 200004,
         message: '暂无数据',
         data: {}

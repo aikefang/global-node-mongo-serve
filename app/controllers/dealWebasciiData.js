@@ -6,6 +6,10 @@ const webasciiBijiArticleHistoryModel = require('../models/biji/article-history'
 const webasciiBijiCategoryModel = require('../models/biji/category')
 const bannerModel = require('../models/biji/banner')
 const navModel = require('../models/biji/nav')
+
+const bookModel = require('../models/book/book')
+
+
 const {connection} = require('../../config/webascii-mysql')
 // let dateFormat = require('dateformat')
 module.exports = {
@@ -649,4 +653,53 @@ module.exports = {
     }
     ctx.body = {}
   },
+
+  async book(ctx) {
+    async function getContent() {
+      return new Promise((resolve, reject) => {
+        connection.query(`select * from book_list`, [], function (error, results, fields) {
+          if (error) {
+            throw error
+          }
+          resolve(results)
+        })
+      })
+    }
+    let res = await getContent()
+    for (const data of res) {
+      let book = await bookModel.find({
+        id: data.id
+      })
+      if (book.length === 0) {
+        let bookEnity = new bookModel({
+          // ID
+          id: data.id,
+          // 书名
+          bookName: data.book_name,
+          // 百度云盘地址
+          baiduCloudDiskUrl: data.baidu_cloud_disk_url,
+          // 预览图
+          bookImg: data.book_img,
+          // 是否启用 默认1  0：不启用，1：启用
+          isEnable: 1,
+          // 创建时间
+          cTime: new Date(data.c_time),
+          // 更新时间
+          // mTime: Date,
+          // 下载量
+          downloads: data.downloads,
+          // 贡献者名称
+          contributorName: data.contributor_name,
+          // 浏览量
+          views: data.book_view
+          // data
+        })
+        // 创建
+        bookModel.create(bookEnity, (err, data) => {
+          if (err) return console.log(err)
+        })
+      }
+    }
+    ctx.body = {}
+  }
 }
