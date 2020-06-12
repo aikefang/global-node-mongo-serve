@@ -120,11 +120,8 @@ app.use(async (ctx, next) => {
   }
   await next()
 })
-// 开发环境不进行非登录验证
-if (process.env.NODE_ENV != 'development') {
-  let loginMiddleware = require('./lib/routes-middleware/login')
-  router.use('/api/*', loginMiddleware)
-}
+
+router.use('/api/*', require('./lib/middleware/access'))
 
 // 路由自动注册
 fileList.run().then((data) => {

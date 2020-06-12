@@ -49,12 +49,22 @@ module.exports = {
       }
     }
 
+    // 当前接口强制限制用户类型访问
+    if (userInfo.user_type !== 2) {
+      return ctx.body = {
+        status: 200005,
+        message: '无权访问',
+        data: {}
+      }
+    }
+
     ctx.session.logged = true
     // session中存储ldap用户信息
     ctx.session.userInfo = {
       _id: userInfo._id,
       id: userInfo.id,
       account: userInfo.account,
+      userType: userInfo.user_type
     }
 
     ctx.cookies.set('logged', 1, { // 用于前端判断登录状态
