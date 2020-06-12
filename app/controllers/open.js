@@ -1,5 +1,5 @@
 // const gitlabProjectData = require('../datas/gitlabProject')
-const testModel = require('../models/test.server.model')
+const testModel = require('../models/test')
 module.exports = {
   demo: async (ctx, next) => {
     // ctx.body = {

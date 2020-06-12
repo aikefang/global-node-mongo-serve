@@ -1,4 +1,4 @@
-const categoryModel = require('../../models/biji/category.server.model')
+const categoryModel = require('../../models/biji/category')
 const humb = require('../../../lib/hump')
 const _ = require('lodash')
 module.exports = {

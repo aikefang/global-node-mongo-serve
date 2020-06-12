@@ -1,4 +1,4 @@
-const recordModel = require('../../models/coin/record.server.model')
+const recordModel = require('../../models/coin/record')
 // const humb = require('../../lib/hump')
 module.exports = {
   // 买入记录

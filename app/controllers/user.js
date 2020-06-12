@@ -1,4 +1,4 @@
-const userModel = require('../models/user.server.model')
+const userModel = require('../models/user')
 const humb = require('../../lib/hump')
 module.exports = {
   // 登录

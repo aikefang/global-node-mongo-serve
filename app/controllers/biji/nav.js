@@ -1,4 +1,4 @@
-const navModel = require('../../models/biji/nav.server.model')
+const navModel = require('../../models/biji/nav')
 const humb = require('../../../lib/hump')
 module.exports = {
   async list(ctx, next) {

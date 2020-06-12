@@ -1,8 +1,8 @@
 // import global from "@/store/modules/global";
 
-const articleModel = require('../../models/biji/article.server.model')
-const articleHistoryModel = require('../../models/biji/article-history.server.model')
-const articleDraftModel = require('../../models/biji/article-draft.server.model')
+const articleModel = require('../../models/biji/article')
+const articleHistoryModel = require('../../models/biji/article-history')
+const articleDraftModel = require('../../models/biji/article-draft')
 // const categoryModel = require('../../models/biji/category.server.model')
 // const userModel = require('../../models/user.server.model')
 const humb = require('../../../lib/hump')

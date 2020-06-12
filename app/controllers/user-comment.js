@@ -1,4 +1,4 @@
-const userCommentModel = require('../models/user-comment.server.model')
+const userCommentModel = require('../models/user-comment')
 const humb = require('../../lib/hump')
 const _ = require('lodash')
 module.exports = {

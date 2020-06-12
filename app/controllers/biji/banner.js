@@ -1,4 +1,4 @@
-const bannerModel = require('../../models/biji/banner.server.model')
+const bannerModel = require('../../models/biji/banner')
 const humb = require('../../../lib/hump')
 module.exports = {
   async list(ctx, next) {
