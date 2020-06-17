@@ -77,10 +77,10 @@ module.exports = {
 
 
 
-    // await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
-    //   title: '订阅消息',
-    //   text: JSON.stringify(ctx.request.body),
-    // })
+    await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
+      title: '订阅消息',
+      text: JSON.stringify(ctx.request.body),
+    })
     ctx.body = {
       ...ctx.request.body,
     }
