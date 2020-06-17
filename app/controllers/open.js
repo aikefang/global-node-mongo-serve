@@ -30,11 +30,19 @@ module.exports = {
     // }
   },
   async feishu(ctx) {
-    const params = ctx.request.body
-    await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
-      title: '参数信息',
-      text: JSON.stringify(params),
-    })
+    let params = ctx.request.body
+    // await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
+    //   title: '参数信息',
+    //   text: JSON.stringify(params),
+    // })
+
+
+    // if (ctx.request.body.msg) {
+    //
+    // }
+
+
+
     if (params.event.text_without_at_bot) {
 
       if (diffText(params.event.text_without_at_bot, ['我的', '任务'])) {
@@ -68,11 +76,12 @@ module.exports = {
       if (!res) {
         res = await qingyunkeReply(params.event.text_without_at_bot)
       }
+      // let res = await qingyunkeReply(params.event.text_without_at_bot)
 
       // params.event.text_without_at_bot
 
       if (res) {
-        await sendMsg(params, params.event.text_without_at_bot)
+        await sendMsg(params, res)
       } else {
         await sendMsg(params, '什么意思？')
       }
@@ -109,26 +118,16 @@ function textSelect(select) {
 }
 
 async function tulingReply (msg) {
-  await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
-    title: '图灵b' + msg,
-    text: '123123123',
-  })
   const res = await $axios.get(`http://www.tuling123.com/openapi/api`, {
     params: {
       key: '7891896c5c1c472babf6abafd842e008',
       info: msg,
     }
   })
-
-  await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
-    title: '图灵' + msg,
-    text: JSON.stringify(res),
-  })
-
-  if (res.text !== '对不起，没听清楚，请再说一遍吧。') {
-    return res.text
+  if (res.data.text === '对不起，没听清楚，请再说一遍吧。') {
+    return false
   }
-  return false
+  return res.data.text
 }
 
 
@@ -140,14 +139,9 @@ async function qingyunkeReply (msg) {
       msg: msg,
     }
   })
-
-  await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
-    title: '青云客' + msg,
-    text: JSON.stringify(res),
-  })
-
-  if (res.result === 0) {
-    return res.content
+  console.log(res)
+  if (res.data.result === 0) {
+    return res.data.content.replace('菲菲', ' Friday全职保姆')
   }
   return false
 }
@@ -159,6 +153,7 @@ async function sendMsg(params, text) {
     app_id: 'cli_9e63c932c5ac900e',
     app_secret: 'sDYHZhDNjCSuHyvnLKfOCdjjv8hHRJhI'
   })
+  // console.log(token)
   await $axios.post('https://open.feishu.cn/open-apis/message/v4/send/',
     {
       open_id: params.event.open_id,
