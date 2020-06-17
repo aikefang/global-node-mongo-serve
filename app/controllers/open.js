@@ -195,7 +195,7 @@ async function sendMsg(params, text) {
       root_id: params.event.open_message_id,
       msg_type: 'text',
       content: {
-        text: `<at user_id=\"${params.event.open_id}\">test</at> ${text}`
+        text: `<at user_id=\"${params.event.open_id}\"></at> ${text}`
       }
     },
     {
