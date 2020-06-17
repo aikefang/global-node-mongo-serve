@@ -31,6 +31,10 @@ module.exports = {
   },
   async feishu(ctx) {
     let params = ctx.request.body
+    await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
+      title: '订阅消息',
+      text: JSON.stringify(ctx.request.body)
+    })
     // await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
     //   title: '参数信息',
     //   text: JSON.stringify(params),
@@ -41,6 +45,31 @@ module.exports = {
     //
     // }
 
+    // params = {
+    //   "uuid": "2d1215b43f8760591a21b8b4f21cde1e",
+    //   "event": {
+    //     "app_id": "cli_9e63c932c5ac900e",
+    //     "chat_type": "group",
+    //     "is_mention": true,
+    //     "lark_version": "lark/3.24.9",
+    //     "message_id": "",
+    //     "msg_type": "text",
+    //     "open_chat_id": "oc_f17c8230bb9262ee955dca6e6b65692f",
+    //     "open_id": "ou_77b5c8a5f3116ac9502563138b9e8d0a",
+    //     "open_message_id": "om_a93ff3f366e4ce4410abfe709a904f09",
+    //     "parent_id": "",
+    //     "root_id": "",
+    //     "tenant_key": "2d5a0a659d4f575d",
+    //     "text": "<at open_id=\"ou_e3cdeeabf8619823a35014358d2c33e1\">@Friday全职保姆</at> 你好啊",
+    //     "text_without_at_bot": "1+1等于几？",
+    //     "type": "message",
+    //     "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Lark/3.24.9 Chrome/73.0.3683.119 Electron/5.0.0 Safari/537.36 LarkLocale/zh_CN SDK-Version/3.24.13",
+    //     "user_open_id": "ou_77b5c8a5f3116ac9502563138b9e8d0a"
+    //   },
+    //   "token": "jZUAb78EXuuDs4zC7qdsFd2VUpL0TEgO",
+    //   "ts": "1592376142.817108",
+    //   "type": "event_callback"
+    // }
 
 
     if (params.event.text_without_at_bot) {
@@ -139,7 +168,6 @@ async function qingyunkeReply (msg) {
       msg: msg,
     }
   })
-  console.log(res)
   if (res.data.result === 0) {
     return res.data.content.replace('菲菲', ' Friday全职保姆')
   }
