@@ -36,27 +36,117 @@ module.exports = {
       app_id: 'cli_9e63c932c5ac900e',
       app_secret: 'sDYHZhDNjCSuHyvnLKfOCdjjv8hHRJhI'
     })
-    ctx.append('Authorization', `Bearer ${token.data.tenant_access_token}`)
+    // ctx.append('Authorization', `Bearer ${token.data.tenant_access_token}`)
+    if (params.event.text_without_at_bot) {
 
-    await $axios.post('https://open.feishu.cn/open-apis/message/v4/send/', {
+      if (diffText(params.event.text_without_at_bot, ['我的', '任务'])) {
+        return await sendMsg(params, textSelect(2))
+      }
+      if (diffText(params.event.text_without_at_bot, ['你是谁'])) {
+        return await sendMsg(params, textSelect(3))
+      }
+      if (diffText(params.event.text_without_at_bot, ['我是谁'])) {
+        return await sendMsg(params, textSelect(4))
+      }
+
+      let res = await tulingReply(params.event.text_without_at_bot)
+      if (!res) {
+        res = await qingyunkeReply(params.event.text_without_at_bot)
+      }
+
+      // params.event.text_without_at_bot
+
+      if (res) {
+        await sendMsg(params, params.event.text_without_at_bot)
+      } else {
+        await sendMsg(params, '什么意思？')
+      }
+    }
+
+
+
+
+    // await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
+    //   title: '订阅消息',
+    //   text: JSON.stringify(ctx.request.body),
+    // })
+    ctx.body = {
+      ...ctx.request.body,
+    }
+  }
+}
+
+function diffText(text, arr) {
+  let boo = []
+  arr.forEach(data => {
+    if (text.indexOf(data) >= 0) {
+      boo.push(true)
+    } else {
+      boo.push(false)
+    }
+  })
+  return boo.indexOf(false) === -1
+}
+
+function textSelect(select) {
+  switch (select) {
+    // case 1:
+    //   return '我非常好~';
+    case 2:
+      return '任务统计正在开发中，请耐心等待。';
+    case 3:
+      return '我是Friday全职保姆啊';
+    case 4:
+      return '你看看我@的谁，那就是你的名字哦';
+  }
+}
+
+async function tulingReply (msg) {
+  const res = await $axios.get(`http://www.tuling123.com/openapi/api`, {
+    params: {
+      key: '7891896c5c1c472babf6abafd842e008',
+      info: msg,
+    }
+  })
+
+  if (res.text !== '对不起，没听清楚，请再说一遍吧。') {
+    return res.text
+  }
+  return false
+}
+
+
+async function qingyunkeReply (msg) {
+  const res = await $axios.get(`http://api.qingyunke.com/api.php`, {
+    params: {
+      key: 'free',
+      appid: 0,
+      msg: msg,
+    }
+  })
+
+  if (res.result === 0) {
+    return res.content
+  }
+  return false
+}
+
+
+
+async function sendMsg(params, text) {
+  await $axios.post('https://open.feishu.cn/open-apis/message/v4/send/',
+    {
       open_id: params.event.open_id,
       chat_id: params.event.open_chat_id,
       root_id: params.event.open_message_id,
       msg_type: 'text',
       content: {
-        text: `<at user_id=\"${params.event.open_id}\">test</at>`
+        text: `<at user_id=\"${params.event.open_id}\">test</at> ${text}`
       }
-    }, {
+    },
+    {
       headers: {
         'Authorization': `Bearer ${token.data.tenant_access_token}`
       }
     })
-    await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
-      title: '订阅消息',
-      text: JSON.stringify(ctx.request.body),
-    })
-    ctx.body = {
-      ...ctx.request.body,
-    }
-  }
 }
