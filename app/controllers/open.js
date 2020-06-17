@@ -32,7 +32,7 @@ module.exports = {
   async feishu(ctx) {
     await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
       title: '订阅消息',
-      text: JSON.stringify(ctx.request.body),
+      text: JSON.stringify(ctx.request.body) + `<at open_id=\\"${ctx.request.body.event.open_id}\\">@某某某</at>`,
     })
     ctx.body = {
       ...ctx.request.body
