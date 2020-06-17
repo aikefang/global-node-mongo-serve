@@ -36,17 +36,28 @@ module.exports = {
       app_id: 'cli_9e63c932c5ac900e',
       app_secret: 'sDYHZhDNjCSuHyvnLKfOCdjjv8hHRJhI'
     })
-    // ctx.append('Authorization', `Bearer ${token.data.tenant_access_token}`)
+
     if (params.event.text_without_at_bot) {
 
       if (diffText(params.event.text_without_at_bot, ['我的', '任务'])) {
-        return await sendMsg(params, textSelect(2))
+        await sendMsg(params, textSelect(2))
+        return ctx.body = {
+          ...ctx.request.body,
+        }
       }
+
       if (diffText(params.event.text_without_at_bot, ['你是谁'])) {
-        return await sendMsg(params, textSelect(3))
+        await sendMsg(params, textSelect(3))
+        return ctx.body = {
+          ...ctx.request.body,
+        }
       }
+
       if (diffText(params.event.text_without_at_bot, ['我是谁'])) {
-        return await sendMsg(params, textSelect(4))
+        await sendMsg(params, textSelect(4))
+        return ctx.body = {
+          ...ctx.request.body,
+        }
       }
 
       let res = await tulingReply(params.event.text_without_at_bot)
