@@ -109,6 +109,10 @@ function textSelect(select) {
 }
 
 async function tulingReply (msg) {
+  await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
+    title: '图灵b' + msg,
+    text: '123123123',
+  })
   const res = await $axios.get(`http://www.tuling123.com/openapi/api`, {
     params: {
       key: '7891896c5c1c472babf6abafd842e008',
