@@ -31,6 +31,10 @@ module.exports = {
   },
   async feishu(ctx) {
     const params = ctx.request.body
+    await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
+      title: '参数信息',
+      text: JSON.stringify(params),
+    })
     if (params.event.text_without_at_bot) {
 
       if (diffText(params.event.text_without_at_bot, ['我的', '任务'])) {
