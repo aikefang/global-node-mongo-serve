@@ -39,6 +39,12 @@ module.exports = {
           ...ctx.request.body,
         }
       }
+      if (diffText(params.event.text_without_at_bot, ['任务'])) {
+        await sendMsg(params, textSelect(2))
+        return ctx.body = {
+          ...ctx.request.body,
+        }
+      }
 
       if (diffText(params.event.text_without_at_bot, ['你是谁'])) {
         await sendMsg(params, textSelect(3))
@@ -67,14 +73,6 @@ module.exports = {
         await sendMsg(params, '什么意思？')
       }
     }
-
-
-
-
-    await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
-      title: '订阅消息',
-      text: JSON.stringify(ctx.request.body),
-    })
     ctx.body = {
       ...ctx.request.body,
     }
@@ -114,6 +112,11 @@ async function tulingReply (msg) {
     }
   })
 
+  await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
+    title: '图灵' + msg,
+    text: JSON.stringify(res),
+  })
+
   if (res.text !== '对不起，没听清楚，请再说一遍吧。') {
     return res.text
   }
@@ -128,6 +131,11 @@ async function qingyunkeReply (msg) {
       appid: 0,
       msg: msg,
     }
+  })
+
+  await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
+    title: '青云客' + msg,
+    text: JSON.stringify(res),
   })
 
   if (res.result === 0) {
