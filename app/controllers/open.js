@@ -100,6 +100,12 @@ module.exports = {
           ...ctx.request.body,
         }
       }
+      if (diffText(params.event.text_without_at_bot, ['公司', '叫', '什么？'])) {
+        await sendMsg(params, textSelect(5))
+        return ctx.body = {
+          ...ctx.request.body,
+        }
+      }
 
       let res = await tulingReply(params.event.text_without_at_bot)
       if (!res) {
@@ -143,6 +149,8 @@ function textSelect(select) {
       return '我是Friday全职保姆啊';
     case 4:
       return '你看看我@的谁，那就是你的名字哦';
+    case 5:
+      return '新氧科技有限公司';
   }
 }
 
