@@ -149,8 +149,6 @@ function textSelect(select) {
       return '我是Friday全职保姆啊';
     case 4:
       return '你看看我@的谁，那就是你的名字哦';
-    case 5:
-      return '新氧科技有限公司';
   }
 }
 
