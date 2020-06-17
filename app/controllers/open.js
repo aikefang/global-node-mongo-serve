@@ -100,7 +100,7 @@ module.exports = {
           ...ctx.request.body,
         }
       }
-      if (diffText(params.event.text_without_at_bot, ['公司', '叫', '什么？'])) {
+      if (diffText(params.event.text_without_at_bot, ['公司', '叫', '什么'])) {
         await sendMsg(params, textSelect(5))
         return ctx.body = {
           ...ctx.request.body,
