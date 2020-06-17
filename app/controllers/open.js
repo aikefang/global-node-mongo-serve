@@ -30,10 +30,7 @@ module.exports = {
     // }
   },
   async feishu(ctx) {
-    console.log(ctx.request)
-
     const params = ctx.request.body
-
 
     const token = await $axios.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/', {
       app_id: 'cli_9e63c932c5ac900e',
@@ -41,28 +38,19 @@ module.exports = {
     })
     ctx.append('Authorization', `Bearer ${token.data.tenant_access_token}`)
 
-
     await $axios.post('https://open.feishu.cn/open-apis/message/v4/send/', {
       open_id: params.event.open_id,
       chat_id: params.event.open_chat_id,
-      // root_id: '',
+      root_id: params.event.open_message_id,
       msg_type: 'text',
       content: {
-        text: `text content<at user_id=\"${params.event.open_id}\">test</at>`
+        text: `<at user_id=\"${params.event.open_id}\">test</at>`
       }
     }, {
       headers: {
         'Authorization': `Bearer ${token.data.tenant_access_token}`
       }
     })
-
-
-    // const token = await $axios.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/', {
-    //   app_id: 'cli_9e63c932c5ac900e',
-    //   app_secret: 'sDYHZhDNjCSuHyvnLKfOCdjjv8hHRJhI'
-    // })
-    //
-    //
     await $axios.post('https://open.feishu.cn/open-apis/bot/hook/d93784d224f9402587c32eb3fe2051c6', {
       title: '订阅消息',
       text: JSON.stringify(ctx.request.body),
