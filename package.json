@@ -12,6 +12,7 @@
     "url": "git@10.211.55.4:root/node-server.git"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "chalk": "^2.4.2",
     "dateformat": "^3.0.3",
     "debug": "~2.2.0",

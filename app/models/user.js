@@ -28,21 +28,27 @@ let schema = new mongoose.Schema({
 	user_type: Number,
 	// 头像
 	head_img: String,
-	// github用户名
-	github_login: String,
-	// github用户ID，0:未绑定github用户
-	github_id: {
-		type: Number,
-		default: 0
+	// // github用户名
+	// github_login: String,
+	// // github用户ID，0:未绑定github用户
+	// github_id: {
+	// 	type: Number,
+	// 	default: 0
+	// },
+	// // github node_id
+	// github_node_id: String,
+	// // github头像信息
+	// github_avatar_url: String,
+	// // github首页
+	// github_home_url: String,
+	// // github账户绑定时间
+	// github_bind_time: Date,
+
+	githubInfo: {
+		type: mongoose.Schema.Types.ObjectId,
+		default: null
 	},
-	// github node_id
-	github_node_id: String,
-	// github头像信息
-	github_avatar_url: String,
-	// github首页
-	github_home_url: String,
-	// github账户绑定时间
-	github_bind_time: Date,
+
 	// qq用户的openid
 	qq_openid: String,
 	// qq昵称
