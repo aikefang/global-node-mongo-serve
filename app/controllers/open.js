@@ -31,12 +31,6 @@ module.exports = {
   },
   async feishu(ctx) {
     const params = ctx.request.body
-
-    const token = await $axios.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/', {
-      app_id: 'cli_9e63c932c5ac900e',
-      app_secret: 'sDYHZhDNjCSuHyvnLKfOCdjjv8hHRJhI'
-    })
-
     if (params.event.text_without_at_bot) {
 
       if (diffText(params.event.text_without_at_bot, ['我的', '任务'])) {
@@ -145,6 +139,10 @@ async function qingyunkeReply (msg) {
 
 
 async function sendMsg(params, text) {
+  const token = await $axios.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/', {
+    app_id: 'cli_9e63c932c5ac900e',
+    app_secret: 'sDYHZhDNjCSuHyvnLKfOCdjjv8hHRJhI'
+  })
   await $axios.post('https://open.feishu.cn/open-apis/message/v4/send/',
     {
       open_id: params.event.open_id,
