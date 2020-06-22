@@ -1,5 +1,6 @@
 // const gitlabProjectData = require('../datas/gitlabProject')
 const userModel = require('../models/user')
+const authModel = require('../models/oauth-info-cache')
 const webasciiBijiArticleModel = require('../models/biji/article')
 const webasciiBijiArticleDraftModel = require('../models/biji/article-draft')
 const webasciiBijiArticleHistoryModel = require('../models/biji/article-history')
@@ -282,17 +283,50 @@ module.exports = {
     }
     let res = await getUser()
     for (const data of res) {
-      let userId = await userModel.find({
-        id: data.id
-      })
-      if (userId.length == 0) {
-        let userEnity = new userModel(data)
-
-        // 创建用户
-        userModel.create(userEnity, (err, data) => {
-          if (err) return console.log(err)
-        })
+      let userData = {
+        id: data.id,
+        nickname: data.nickname,
+        account: data.account,
+        password: data.password,
+        user_type: data.user_type,
+        head_img: data.head_img,
+        c_time: new Date(data.c_time)
       }
+
+      if (data.github_id) {
+        const res = await authModel.findOneAndUpdate(
+          {
+            id: data.github_id.toString()
+          },
+          {
+            $set: {
+              type: 'github',
+              info: {
+                id: data.github_id,
+                html_url: data.github_home_url,
+                node_id: data.github_node_id,
+                avatar_url: data.github_avatar_url,
+              }
+            }
+          },
+          {
+            'upsert': true
+          }).lean()
+        if (res) {
+          userData.info = res._id
+        }
+      }
+      await userModel.findOneAndUpdate(
+        {
+          id: data.id
+        },
+        {
+          $set: userData
+        },
+        {
+          new: true,
+          upsert: true
+        })
     }
     ctx.body = {
       res
@@ -482,8 +516,11 @@ module.exports = {
         {
           "title": "Dart",
           seo: 'dart'
+        },
+        {
+          "title": "性能优化",
+          seo: 'optimize'
         }
-
       ]
 
 

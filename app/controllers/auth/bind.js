@@ -87,7 +87,7 @@ module.exports = {
       },
       {
         $set: {
-          githubInfo: oauthRes._id
+          info: oauthRes._id
         }
       },
       {
@@ -179,7 +179,7 @@ module.exports = {
       account: account,
       password: password,
       user_type: 2,
-      githubInfo: oauthRes._id
+      info: oauthRes._id
     })
     // 创建用户
     const userData = await userModel.create(userEnity)
@@ -228,7 +228,7 @@ module.exports = {
     }
 
     const res = await userModel.findOne({
-      githubInfo: id
+      info: id
     }).lean()
 
     if (!res) {

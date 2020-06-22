@@ -10,7 +10,7 @@ let schema = new mongoose.Schema({
 	// 密码
 	password: String,
 	// 令牌
-	login_token: String,
+	// login_token: String,
 	// 最后登录时间
 	last_login_time: Date,
 	// 创建时间
@@ -44,27 +44,27 @@ let schema = new mongoose.Schema({
 	// // github账户绑定时间
 	// github_bind_time: Date,
 
-	githubInfo: {
+	info: {
 		type: mongoose.Schema.Types.ObjectId,
 		default: null
 	},
 
-	// qq用户的openid
-	qq_openid: String,
-	// qq昵称
-	qq_nickname: String,
-	// qq性别
-	qq_gender: String,
-	// qq省份
-	qq_province: String,
-	// qq城市
-	qq_city: String,
-	// qq 个人出生年份
-	qq_year: String,
-	// qq头像
-	qq_figureurl_qq: String,
-	// 首次绑定qq的时间
-	qq_bind_time: Date,
+	// // qq用户的openid
+	// qq_openid: String,
+	// // qq昵称
+	// qq_nickname: String,
+	// // qq性别
+	// qq_gender: String,
+	// // qq省份
+	// qq_province: String,
+	// // qq城市
+	// qq_city: String,
+	// // qq 个人出生年份
+	// qq_year: String,
+	// // qq头像
+	// qq_figureurl_qq: String,
+	// // 首次绑定qq的时间
+	// qq_bind_time: Date,
 })
 
 module.exports = db.model('user', schema)
