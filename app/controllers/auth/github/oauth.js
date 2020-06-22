@@ -75,46 +75,46 @@ module.exports = {
         data: {}
       }
     }
-    return ctx.body = {
-      status: 200,
-      message: '成功',
-      data: { github:
-          { login: 'aikefang',
-            id: 21077842,
-            node_id: 'MDQ6VXNlcjIxMDc3ODQy',
-            avatar_url: 'https://avatars2.githubusercontent.com/u/21077842?v=4',
-            gravatar_id: '',
-            url: 'https://api.github.com/users/aikefang',
-            html_url: 'https://github.com/aikefang',
-            followers_url: 'https://api.github.com/users/aikefang/followers',
-            following_url:
-              'https://api.github.com/users/aikefang/following{/other_user}',
-            gists_url: 'https://api.github.com/users/aikefang/gists{/gist_id}',
-            starred_url:
-              'https://api.github.com/users/aikefang/starred{/owner}{/repo}',
-            subscriptions_url: 'https://api.github.com/users/aikefang/subscriptions',
-            organizations_url: 'https://api.github.com/users/aikefang/orgs',
-            repos_url: 'https://api.github.com/users/aikefang/repos',
-            events_url: 'https://api.github.com/users/aikefang/events{/privacy}',
-            received_events_url: 'https://api.github.com/users/aikefang/received_events',
-            type: 'User',
-            site_admin: false,
-            name: null,
-            company: null,
-            blog: '',
-            location: null,
-            email: null,
-            hireable: null,
-            bio: null,
-            twitter_username: null,
-            public_repos: 58,
-            public_gists: 0,
-            followers: 2,
-            following: 0,
-            created_at: '2016-08-17T08:59:34Z',
-            updated_at: '2020-06-16T02:06:03Z' },
-        id: '5ee7388859545aead05825a9' }
-    }
+    // return ctx.body = {
+    //   status: 200,
+    //   message: '成功',
+    //   data: { github:
+    //       { login: 'aikefang',
+    //         id: 21077842,
+    //         node_id: 'MDQ6VXNlcjIxMDc3ODQy',
+    //         avatar_url: 'https://avatars2.githubusercontent.com/u/21077842?v=4',
+    //         gravatar_id: '',
+    //         url: 'https://api.github.com/users/aikefang',
+    //         html_url: 'https://github.com/aikefang',
+    //         followers_url: 'https://api.github.com/users/aikefang/followers',
+    //         following_url:
+    //           'https://api.github.com/users/aikefang/following{/other_user}',
+    //         gists_url: 'https://api.github.com/users/aikefang/gists{/gist_id}',
+    //         starred_url:
+    //           'https://api.github.com/users/aikefang/starred{/owner}{/repo}',
+    //         subscriptions_url: 'https://api.github.com/users/aikefang/subscriptions',
+    //         organizations_url: 'https://api.github.com/users/aikefang/orgs',
+    //         repos_url: 'https://api.github.com/users/aikefang/repos',
+    //         events_url: 'https://api.github.com/users/aikefang/events{/privacy}',
+    //         received_events_url: 'https://api.github.com/users/aikefang/received_events',
+    //         type: 'User',
+    //         site_admin: false,
+    //         name: null,
+    //         company: null,
+    //         blog: '',
+    //         location: null,
+    //         email: null,
+    //         hireable: null,
+    //         bio: null,
+    //         twitter_username: null,
+    //         public_repos: 58,
+    //         public_gists: 0,
+    //         followers: 2,
+    //         following: 0,
+    //         created_at: '2016-08-17T08:59:34Z',
+    //         updated_at: '2020-06-16T02:06:03Z' },
+    //     id: '5ee7388859545aead05825a9' }
+    // }
     const userInfo = await requestGithub(config.server.github, {
       code
     })
