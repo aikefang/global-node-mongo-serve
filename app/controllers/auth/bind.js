@@ -293,5 +293,20 @@ module.exports = {
         })
       }
     }
+  },
+  async qqOldUser(ctx) {
+
+  },
+  async qqNewUser(ctx) {
+
+  },
+  async gitlabAutoLogin(ctx) {
+
   }
 }
+
+// class Controllers {
+//
+// }
+// module.exports = new Controllers()
+
