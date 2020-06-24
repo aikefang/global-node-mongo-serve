@@ -75,7 +75,52 @@ module.exports = {
     if (params.event.text_without_at_bot) {
 
       if (diffText(params.event.text_without_at_bot, ['我的', '任务'])) {
-        await sendMsg(params, textSelect(2))
+
+        await sendMsg(params, null, {
+          "msg_type": "interactive",
+          "card": {
+            "elements": [
+              {
+                "tag": "div",
+                "text": {
+                  "tag": "plain_text",
+                  "content": "text-lark_md",
+                  "lines": 1
+                },
+                "fields": [
+                  {
+                    "is_short": false,
+                    "text": {
+                      "tag": "lark_md",
+                      "content": "[任务1 巴拉巴拉](http://www.baidu.com/)"
+                    }
+                  },
+                  {
+                    "is_short": false,
+                    "text": {
+                      "tag": "lark_md",
+                      "content": "[任务2 巴拉巴拉](http://www.baidu.com/)"
+                    }
+                  },
+                  {
+                    "is_short": false,
+                    "text": {
+                      "tag": "lark_md",
+                      "content": "[任务3 巴拉巴拉](http://www.baidu.com/)"
+                    }
+                  },
+                  {
+                    "is_short": false,
+                    "text": {
+                      "tag": "lark_md",
+                      "content": "[任务4 巴拉巴拉](http://www.baidu.com/)"
+                    }
+                  },
+                ]
+              }
+            ]
+          }
+        })
         return ctx.body = {
           ...ctx.request.body,
         }
@@ -124,6 +169,60 @@ module.exports = {
     ctx.body = {
       ...ctx.request.body,
     }
+  },
+
+
+  async sendFeishu(ctx) {
+
+    const token = await $axios.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/', {
+      app_id: 'cli_9e63c932c5ac900e',
+      app_secret: 'sDYHZhDNjCSuHyvnLKfOCdjjv8hHRJhI'
+    })
+
+    // console.log(token)
+    await $axios.post('https://open.feishu.cn/open-apis/message/v4/send/',
+      {
+        // open_id: params.event.open_id,
+        // open_id: 'ou_77b5c8a5f3116ac9502563138b9e8d0a',
+        // chat_id: params.event.open_chat_id,
+        chat_id: 'oc_f17c8230bb9262ee955dca6e6b65692f',
+        // root_id: params.event.open_message_id,
+        // root_id: 'om_6530b7fcd260c688ca9066227be8d88f',
+        // msg_type: 'text',
+        // content: {
+        //   text: `<at user_id=\"ou_77b5c8a5f3116ac9502563138b9e8d0a\"></at> [开发文档](https://open.feishu.cn)`
+        // }
+        "msg_type": "interactive",
+        "card": {
+          "elements": [
+            {
+              "tag": "div",
+              "text": {
+                "tag": "plain_text",
+                "content": "text-lark_md",
+                "lines": 1
+              },
+              "fields": [
+                {
+                  "is_short": false,
+                  "text": {
+                    "tag": "lark_md",
+                    "content": "[开发文档](https://open.feishu.cn)"
+                  }
+                },
+              ]
+            }
+          ]
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token.data.tenant_access_token}`
+        }
+      })
+    ctx.body = {
+      message: '已发送'
+    }
   }
 }
 
@@ -152,7 +251,7 @@ function textSelect(select) {
   }
 }
 
-async function tulingReply (msg) {
+async function tulingReply(msg) {
   const res = await $axios.get(`http://www.tuling123.com/openapi/api`, {
     params: {
       key: '7891896c5c1c472babf6abafd842e008',
@@ -166,7 +265,7 @@ async function tulingReply (msg) {
 }
 
 
-async function qingyunkeReply (msg) {
+async function qingyunkeReply(msg) {
   const res = await $axios.get(`http://api.qingyunke.com/api.php`, {
     params: {
       key: 'free',
@@ -181,23 +280,34 @@ async function qingyunkeReply (msg) {
 }
 
 
-
-async function sendMsg(params, text) {
+async function sendMsg(params, text, data) {
   const token = await $axios.post('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal/', {
     app_id: 'cli_9e63c932c5ac900e',
     app_secret: 'sDYHZhDNjCSuHyvnLKfOCdjjv8hHRJhI'
   })
+  let postData = {
+    open_id: params.event.open_id,
+    chat_id: params.event.open_chat_id,
+    root_id: params.event.open_message_id,
+    // msg_type: 'text',
+    // content: {
+    //   text: `<at user_id=\"${params.event.open_id}\"></at> ${text}`
+    // }
+  }
+  if (data) {
+    postData = {
+      ...postData,
+      ...data
+    }
+  } else {
+    postData.msg_type = text
+    postData.content = {
+      text: `<at user_id=\\"${params.event.open_id}\\"></at> ${text}`
+    }
+  }
   // console.log(token)
   await $axios.post('https://open.feishu.cn/open-apis/message/v4/send/',
-    {
-      open_id: params.event.open_id,
-      chat_id: params.event.open_chat_id,
-      root_id: params.event.open_message_id,
-      msg_type: 'text',
-      content: {
-        text: `<at user_id=\"${params.event.open_id}\"></at> ${text}`
-      }
-    },
+    postData,
     {
       headers: {
         'Authorization': `Bearer ${token.data.tenant_access_token}`
