@@ -316,6 +316,33 @@ module.exports = {
           userData.info = res._id
         }
       }
+      if (data.qq_openid) {
+        const res = await authModel.findOneAndUpdate(
+          {
+            id: data.qq_openid.toString()
+          },
+          {
+            $set: {
+              type: 'qq',
+              info: {
+                id: data.qq_openid,
+                nickname: data.qq_nickname,
+                gender: data.qq_gender,
+                province: data.qq_province,
+                city: data.qq_city,
+                year: data.qq_year,
+                figureurl_qq: data.qq_figureurl_qq,
+                bind_time: data.qq_bind_time,
+              }
+            }
+          },
+          {
+            'upsert': true
+          }).lean()
+        if (res) {
+          userData.info = res._id
+        }
+      }
       await userModel.findOneAndUpdate(
         {
           id: data.id
