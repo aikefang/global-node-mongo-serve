@@ -44,7 +44,7 @@ async function getOpenid(accessToken) {
   console.log('qq openid', res.data)
   let openidObj = {}
   try {
-    openidObj = eval('openid' + `${res.data}`)
+    openidObj = JSON.parse(res.data.match(/\{(.+?)\}/g)[0])
     if (!openidObj.client_id || !openidObj.openid) {
       console.log('qq openid 回调方法接口未知错误')
       return false
