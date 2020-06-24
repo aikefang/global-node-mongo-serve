@@ -84,10 +84,6 @@ async function requestQQ(qq, param) {
     return false
   }
   const openidObj = await getOpenid(accessToken)
-  if (!openId) {
-    console.log('qq openid 接口未知错误')
-    return false
-  }
   let userInfo = await getUserInfo(qq, {
     accessToken,
     openid: openidObj.openid
