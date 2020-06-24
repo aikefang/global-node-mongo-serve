@@ -343,6 +343,7 @@ module.exports = {
           userData.info = res._id
         }
       }
+      console.log(userData)
       await userModel.findOneAndUpdate(
         {
           id: data.id
