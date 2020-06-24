@@ -5,11 +5,11 @@ const oauthModel = require('../../../models/oauth-info-cache')
 async function getAccessToken(qq, param) {
   const res = await $axios({
     url: `https://graph.qq.com/oauth2.0/token`,
-    method: 'POST',
+    method: 'GET',
     headers: {
       "content-type": "application/json"
     },
-    data: {
+    params: {
       grant_type: 'authorization_code',
       client_id: qq.clientId,
       client_secret: qq.clientSecret,
@@ -41,6 +41,7 @@ async function getOpenid(accessToken) {
     timeout: 5000, // 设置超时
     responseType: 'text'
   })
+  console.log('qq openid', res.data)
   let openidObj = {}
   try {
     openidObj = eval('openid' + `${res.data}`)
@@ -71,6 +72,7 @@ async function getUserInfo(qq, info) {
     // timeout: 5000, // 设置超时
     responseType: 'json'
   })
+  console.log('qq user info', res.data)
   return res.data
 }
 
