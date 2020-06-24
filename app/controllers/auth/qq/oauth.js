@@ -116,6 +116,7 @@ module.exports = {
     const userInfo = await requestQQ(config.server.qq, {
       code
     })
+    console.log('userInfo', userInfo)
 
     if (!userInfo) {
       return ctx.body = {
