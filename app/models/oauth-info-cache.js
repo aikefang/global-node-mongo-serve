@@ -23,4 +23,4 @@ let schema = new mongoose.Schema({
 	mTime: Date,
 })
 
-module.exports = db.model('oauth-info-cache', schema)
+module.exports = db.model('oauth_info_cache', schema)

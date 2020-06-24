@@ -313,7 +313,7 @@ module.exports = {
             'upsert': true
           }).lean()
         if (res) {
-          userData.info = res._id
+          userData.github = res._id
         }
       }
       if (data.qq_openid) {
@@ -340,7 +340,7 @@ module.exports = {
             'upsert': true
           }).lean()
         if (res) {
-          userData.info = res._id
+          userData.qq = res._id
         }
       }
       console.log(userData)

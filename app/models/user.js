@@ -44,7 +44,11 @@ let schema = new mongoose.Schema({
 	// // github账户绑定时间
 	// github_bind_time: Date,
 
-	info: {
+	github: {
+		type: mongoose.Schema.Types.ObjectId,
+		default: null
+	},
+	qq: {
 		type: mongoose.Schema.Types.ObjectId,
 		default: null
 	},

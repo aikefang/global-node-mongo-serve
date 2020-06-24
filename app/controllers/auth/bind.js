@@ -240,7 +240,7 @@ module.exports = {
     }
 
     const res = await userModel.findOne({
-      info: id
+      github: id
     }).lean()
 
     if (!res) {
@@ -517,7 +517,7 @@ module.exports = {
     }
 
     const res = await userModel.findOne({
-      info: id
+      qq: id
     }).lean()
 
     if (!res) {
