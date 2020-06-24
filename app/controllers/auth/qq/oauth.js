@@ -129,7 +129,7 @@ module.exports = {
     // 缓存qq登录数据
     const res = await oauthModel.findOneAndUpdate(
       {
-        id: userInfo.id.toString()
+        id: userInfo.openid.toString()
       },
       {
         $set: {
@@ -143,25 +143,25 @@ module.exports = {
       }
     )
 
-    // let infoId = null
-    //
-    // if (!res) {
-    //   const findRes = await oauthModel.findOne({
-    //     id: userInfo.id.toString()
-    //   })
-    //   if (findRes) {
-    //     infoId = findRes._id
-    //   }
-    // } else {
-    //   infoId = res._id
-    // }
+    let infoId = null
+
+    if (!res) {
+      const findRes = await oauthModel.findOne({
+        id: userInfo.openid.toString()
+      })
+      if (findRes) {
+        infoId = findRes._id
+      }
+    } else {
+      infoId = res._id
+    }
 
     ctx.body = {
       status: 200,
       message: '成功',
       data: {
         qq: userInfo,
-        // id: infoId
+        id: infoId
       }
     }
   }
