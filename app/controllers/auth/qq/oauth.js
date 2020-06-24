@@ -17,8 +17,9 @@ async function getAccessToken(qq, param) {
       redirect_uri: qq.redirectUri,
     },
     timeout: 5000, // 设置超时
-    responseType: 'text'
+    // responseType: 'text'
   })
+  console.log('qq token', res.data)
   if (res.data.indexOf('access_token') === -1) {
     return false
   }
