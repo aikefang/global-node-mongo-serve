@@ -96,9 +96,10 @@ async function requestQQ(qq, param) {
   return {
     userInfo: {
       ...userInfo,
-      openid: openidObj.openid
+      // openid: openidObj.openid
+      ...openidObj
     },
-    openidObj
+
   }
 }
 
@@ -113,12 +114,12 @@ module.exports = {
         data: {}
       }
     }
-    const userInfo = await requestQQ(config.server.qq, {
+    const userRes = await requestQQ(config.server.qq, {
       code
     })
-    console.log('userInfo', userInfo)
+    console.log('userInfo', userRes)
 
-    if (!userInfo) {
+    if (!userRes.userInfo) {
       return ctx.body = {
         status: 500001,
         message: '未知错误',
@@ -129,12 +130,12 @@ module.exports = {
     // 缓存qq登录数据
     const res = await oauthModel.findOneAndUpdate(
       {
-        id: userInfo.openid.toString()
+        id: userRes.userInfo.openid.toString()
       },
       {
         $set: {
           type: 'qq',
-          info: userInfo,
+          info: userRes.userInfo,
           mTime: new Date()
         }
       },
@@ -160,7 +161,7 @@ module.exports = {
       status: 200,
       message: '成功',
       data: {
-        qq: userInfo,
+        qq: userRes.userInfo,
         id: infoId
       }
     }
