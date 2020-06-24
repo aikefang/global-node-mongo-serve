@@ -82,11 +82,11 @@ module.exports = {
             "elements": [
               {
                 "tag": "div",
-                "text": {
-                  "tag": "plain_text",
-                  "content": "text-lark_md",
-                  "lines": 1
-                },
+                // "text": {
+                //   "tag": "plain_text",
+                //   "content": "text-lark_md",
+                //   "lines": 1
+                // },
                 "fields": [
                   {
                     "is_short": false,
