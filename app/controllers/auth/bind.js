@@ -498,6 +498,7 @@ module.exports = {
     }
   },
   async qqAutoLogin(ctx) {
+    console.log(1111, ctx.request.body.id)
     const id = ctx.request.body.id
     if (!id) {
       return ctx.body = {
@@ -519,6 +520,7 @@ module.exports = {
     const res = await userModel.findOne({
       qq: id
     }).lean()
+    console.log(222, res)
 
     if (!res) {
       return ctx.body = {
