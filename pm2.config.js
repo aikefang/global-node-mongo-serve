@@ -13,8 +13,11 @@ module.exports = {
       },
       "ignore_watch": [                        // 不用监听的文件
         "node_modules",
-        "logs"
+        "logs",
+        "tmp"
       ],
+      "error_file": "/home/wwwroot/global-node-mongo-service/logs/err.log",
+      "out_file": "/home/wwwroot/global-node-mongo-service/logs/out.log",
     }
   ]
 }
