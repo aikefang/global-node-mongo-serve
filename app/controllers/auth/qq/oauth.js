@@ -117,7 +117,7 @@ module.exports = {
     const userRes = await requestQQ(config.server.qq, {
       code
     })
-    console.log('userInfo', userRes)
+    // console.log('userInfo', userRes)
 
     if (!userRes.userInfo) {
       return ctx.body = {
@@ -146,6 +146,8 @@ module.exports = {
 
     let infoId = null
 
+    console.log(11122, res)
+
     if (!res) {
       const findRes = await oauthModel.findOne({
         id: userInfo.openid.toString()
@@ -153,6 +155,7 @@ module.exports = {
       if (findRes) {
         infoId = findRes._id
       }
+      console.log('findRes', findRes)
     } else {
       infoId = res._id
     }
