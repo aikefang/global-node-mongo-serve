@@ -10,7 +10,7 @@ const qiniuTool = require('qiniu-tool')
 const storage = multer.diskStorage({
   // 文件保存路径
   async destination(req, file, cb) {
-    cb(null, 'upload')
+    cb(null, 'tmp')
   },
   // 修改文件名称
   async filename(req, file, cb) {
