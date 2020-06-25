@@ -3,11 +3,11 @@
 /**
  * Module dependencies.
  */
-let app = require('../app')
+let app = require('./app')
 let debug = require('debug')('nodeserver:server')
 let http = require('http')
 const chalk = require('chalk')
-let {serverOptions} = require('../config/config')
+let {serverOptions} = require('./config/config')
 
 
 /**

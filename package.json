@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development supervisor bin/server.js",
+    "dev": "cross-env NODE_ENV=development supervisor ./server.js",
     "prod": "pm2 start pm2.config.js --env production"
   },
   "repository": {
