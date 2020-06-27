@@ -14,7 +14,15 @@ module.exports = {
     let pageSize = parseInt(ctx.request.query.pageSize, 10) || 10
     let pageNum = parseInt(ctx.request.query.pageNum, 10) || 1
 
-    const articleList = await articleModel.find({}, {
+    let findObj = {}
+
+    if (ctx.session.userInfo && ctx.session.userInfo.account !== 'madashi') {
+      findObj.levelSecond = {
+        $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+      }
+    }
+
+    const articleList = await articleModel.find(findObj, {
       content: 0
     })
       .sort({
@@ -103,7 +111,14 @@ module.exports = {
         type.levelFirst = levelFirst
       }
       if (levelSecond) {
-        type.levelSecond = levelSecond
+        // type.levelSecond = levelSecond
+        if (ctx.session.userInfo && ctx.session.userInfo.account !== 'madashi') {
+          type.levelSecond = {
+            $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+          }
+        } else {
+          type.levelSecond = levelSecond
+        }
       }
     }
     const params = {
@@ -276,6 +291,16 @@ module.exports = {
         }
       }
     ])
+
+    let findObj = {
+      is_enable: 1
+    }
+
+    if (ctx.session.userInfo && ctx.session.userInfo.account !== 'madashi') {
+      findObj.levelSecond = {
+        $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+      }
+    }
 
     const newList = await articleModel.find({
       is_enable: 1
