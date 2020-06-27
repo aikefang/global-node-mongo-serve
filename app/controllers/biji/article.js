@@ -16,7 +16,7 @@ module.exports = {
 
     let findObj = {}
 
-    if (ctx.session.userInfo && ctx.session.userInfo.account !== 'madashi') {
+    if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
       findObj.levelSecond = {
         $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
       }
@@ -111,19 +111,22 @@ module.exports = {
         type.levelFirst = levelFirst
       }
       if (levelSecond) {
-        // type.levelSecond = levelSecond
-        if (ctx.session.userInfo && ctx.session.userInfo.account !== 'madashi') {
-          type.levelSecond = {
-            $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
-          }
-        } else {
-          type.levelSecond = levelSecond
-        }
+        type.levelSecond = levelSecond
       }
     }
     const params = {
       ...type
     }
+    if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
+      params.$and = [
+        {
+          levelSecond: {
+            $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+          }
+        }
+      ]
+    }
+
     if (keyword) {
       params.title = {
         $regex: reg
@@ -296,15 +299,13 @@ module.exports = {
       is_enable: 1
     }
 
-    if (ctx.session.userInfo && ctx.session.userInfo.account !== 'madashi') {
+    if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
       findObj.levelSecond = {
         $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
       }
     }
 
-    const newList = await articleModel.find({
-      is_enable: 1
-    }, {
+    const newList = await articleModel.find(findObj, {
       id: 1,
       title: 1,
       article_image_view: 1,
