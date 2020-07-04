@@ -9,6 +9,9 @@ const humb = require('../../../lib/hump')
 const simplifyTime = require('../../../lib/simplifyTime')
 const num2Str = require('../../../lib/num2Str')
 const _ = require('lodash')
+
+const {html2json, json2html} = require('html2json')
+
 module.exports = {
   async list(ctx, next) {
     let pageSize = parseInt(ctx.request.query.pageSize, 10) || 10
@@ -306,16 +309,16 @@ module.exports = {
       }
     }
 
-    const newList = await articleModel.find(findObj, {
-      id: 1,
-      title: 1,
-      article_image_view: 1,
-    })
-      .limit(20)
-      .sort({
-        c_time: -1
-      })
-      .lean()
+    // const newList = await articleModel.find(findObj, {
+    //   id: 1,
+    //   title: 1,
+    //   article_image_view: 1,
+    // })
+    //   .limit(20)
+    //   .sort({
+    //     c_time: -1
+    //   })
+    //   .lean()
 
     const note = humb(details)
     note.author.headImg = note.author.headImg + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/40'
@@ -335,18 +338,99 @@ module.exports = {
         note.content = note.content.replace(res, res.replace(val3, val3 + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80'))
         // console.log(res)
       })
+
+
+
+
+      const content = html2json(note.content)
+
+
+      // content.child.forEach(data => {
+      //   // if () {
+      //   //
+      //   // }
+      // })
+      const anchorList = []
+      let anchorNum = 1
+
+
+      const getText = (arr) => {
+        let text = ''
+        let fn = (arr) => {
+          arr.forEach(data => {
+            if (data.node === 'text') {
+              text += data.text
+            } else {
+              fn(data.child)
+            }
+          })
+        }
+        fn(arr)
+        return text
+      }
+
+      const dealNode = (arr) => {
+        let fn = (arr) => {
+          arr.forEach(data => {
+            if (data.node === 'element' && (data.tag === 'h1' || data.tag === 'h2' || data.tag === 'h3' || data.tag === 'h4' || data.tag === 'h5' || data.tag === 'h6')) {
+              const anchorId = 'anchor-' + anchorNum
+              const text = getText(data.child)
+              anchorList.push({
+                tag: data.tag,
+                id: anchorId,
+                text
+              })
+
+              if (data.attr) {
+                // data.attr.id = anchorId
+                data.attr['anchor-id'] = anchorId
+                if (!data.attr.class) {
+                  data.attr.class = 'anchor-tag'
+                } else if (data.attr.class && typeof data.attr.class === 'string') {
+                  data.attr.class = [data.attr.class, 'anchor-tag']
+                } else if (data.attr.class && typeof data.attr.class === 'object') {
+                  data.attr.class = [...data.attr.class, 'anchor-tag']
+                }
+              } else {
+                data.attr = {
+                  // id: anchorId
+                  'anchor-id': anchorId,
+                  'class': 'anchor-tag'
+                }
+              }
+
+              anchorNum++
+            }
+            if (data.child) {
+              fn(data.child)
+            }
+          })
+        }
+        fn(arr)
+        return arr
+      }
+      content.child = dealNode(content.child)
+
+      note.anchorList = anchorList
+      note.content = json2html(content)
+      // note.content = content
+
+
+
+
     }
 
     ctx.body = {
       status: 200,
       message: '成功',
       data: {
+        // content: html2json(note.content),
         note,
         isAuthor,
         allArticleNum,
         allViews: allViews.total,
         allViewsStr: num2Str(allViews.total),
-        newNoteList: humb(newList)
+        // newNoteList: humb(newList)
       }
     }
   },
