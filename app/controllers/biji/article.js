@@ -360,7 +360,7 @@ module.exports = {
           arr.forEach(data => {
             if (data.node === 'text') {
               text += data.text
-            } else {
+            } else if (data.child) {
               fn(data.child)
             }
           })
@@ -374,7 +374,7 @@ module.exports = {
           arr.forEach(data => {
             if (data.node === 'element' && (data.tag === 'h1' || data.tag === 'h2' || data.tag === 'h3' || data.tag === 'h4' || data.tag === 'h5' || data.tag === 'h6')) {
               const anchorId = 'anchor-' + anchorNum
-              const text = getText(data.child)
+              const text = getText(data.child) || '未识别标题'
               anchorList.push({
                 tag: data.tag,
                 id: anchorId,
