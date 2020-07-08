@@ -1,5 +1,6 @@
 const userCommentModel = require('../models/user-comment')
 const humb = require('../../lib/hump')
+const replaceContentImg = require('../../lib/replaceContentImg')
 const _ = require('lodash')
 module.exports = {
   async list(ctx) {
@@ -43,6 +44,7 @@ module.exports = {
 
     const parentIds = []
     res.forEach(data => {
+      data.content = replaceContentImg(data.content)
       parentIds.push(data._id)
     })
 
@@ -69,6 +71,13 @@ module.exports = {
         author: 1
       })
       .lean()
+    resChild.forEach(data => {
+
+      if (data.quote) {
+        data.quote.content = replaceContentImg(data.quote.content)
+      }
+      data.content = replaceContentImg(data.content)
+    })
     const childGroup = _.groupBy(resChild, 'parent')
 
     res.forEach(data => {
@@ -133,12 +142,65 @@ module.exports = {
     const userCommentEnity = await new userCommentModel(params)
 
     // 创建历史记录
-    await userCommentModel.create(userCommentEnity)
+    const res = await userCommentModel.create(userCommentEnity)
+    const resObj = res.toObject()
+
+    let data = null
+    let type = ''
+    let searchParent = null
+
+    // 新增加的一级评论数据
+    if (!resObj.parent) {
+      type = 'new'
+      searchParent = resObj._id
+    } else { // 非一级评论数据
+      type = 'old'
+      searchParent = resObj.parent
+    }
+
+    const parentRes = await userCommentModel.findOne({
+      _id: searchParent
+    })
+      .populate('author', {
+        id: 1,
+        _id: 1,
+        nickname: 1,
+        head_img: 1,
+      })
+      .lean()
+
+    const resChild = await userCommentModel.find({
+      parent: parentRes._id
+    })
+      .populate('author', {
+        id: 1,
+        _id: 1,
+        nickname: 1,
+        head_img: 1,
+      })
+      .populate('replyAuthor', {
+        id: 1,
+        _id: 1,
+        nickname: 1,
+        head_img: 1,
+      })
+      .populate('quote', {
+        content: 1,
+        author: 1
+      })
+      .lean()
+
+    parentRes.children = resChild || []
+
+    data = parentRes
 
     ctx.body = {
       status: 200,
       message: '评论成功',
-      data: {}
+      data: {
+        data: humb(data),
+        type
+      }
     }
   },
   async delete(ctx) {

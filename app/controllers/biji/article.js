@@ -7,6 +7,7 @@ const articleDraftModel = require('../../models/biji/article-draft')
 // const userModel = require('../../models/user.server.model')
 const humb = require('../../../lib/hump')
 const simplifyTime = require('../../../lib/simplifyTime')
+const replaceContentImg = require('../../../lib/replaceContentImg')
 const num2Str = require('../../../lib/num2Str')
 const _ = require('lodash')
 
@@ -299,58 +300,140 @@ module.exports = {
       }
     ])
 
-    let findObj = {
-      is_enable: 1
+    /**
+     * 推荐文章逻辑
+     * @type {{$and: *[], is_enable: number}}
+     * 1：取当前二级类目下文章补足20条（排除自己）
+     * 2：不够20条取一级类目下文章补足20条（排除自己）
+     * 3：仍然不够20条取最新文章补足20条（排除自己）
+     */
+    const findObj = {
+      is_enable: 1,
+      $and: [
+        // 排除当前文章
+        {
+          _id: {
+            $ne: details._id
+          }
+        },
+        // 搜索推荐文章
+        {
+          levelFirst: details.levelFirst._id,
+          levelSecond: details.levelSecond._id,
+        }
+      ]
     }
-
     if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
-      findObj.levelSecond = {
-        $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+      // 搜索条件添加
+      findObj.$and.push({
+        levelSecond: {
+          $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+        }
+      })
+    }
+    // 获取当前二级分类推荐
+    const recommendList = await articleModel.find(
+      findObj,
+      {
+        id: 1,
+        title: 1,
+        article_image_view: 1,
+      })
+      .limit(10)
+      .sort({
+        c_time: -1
+      })
+      .lean()
+
+    // 当前类目下无其他文章
+    if (recommendList.length === 0) {
+
+      const findLevelFirstObj = {
+        is_enable: 1,
+        $and: [
+          // 排除当前文章
+          {
+            _id: {
+              $ne: details._id
+            }
+          },
+          // 搜索推荐文章
+          {
+            levelFirst: details.levelFirst._id
+          }
+        ]
+      }
+      const findNewObj = {
+        is_enable: 1,
+        $and: [
+          // 排除当前文章
+          {
+            _id: {
+              $ne: details._id
+            }
+          }
+        ]
+      }
+      if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
+        // 搜索条件添加
+        findLevelFirstObj.$and.push({
+          levelSecond: {
+            $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+          }
+        })
+        // 搜索条件添加
+        findNewObj.$and.push({
+          levelSecond: {
+            $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+          }
+        })
+      }
+      // 获取主分类推荐
+      const recommendLevelFirstList = await articleModel.find(
+        findLevelFirstObj,
+        {
+          id: 1,
+          title: 1,
+          article_image_view: 1,
+        })
+        .limit(10)
+        .sort({
+          c_time: -1
+        })
+        .lean()
+
+      recommendList.push(...recommendLevelFirstList)
+
+      if (recommendLevelFirstList.length < 10) {
+        const recommendNewList = await articleModel.find(
+          findNewObj,
+          {
+            id: 1,
+            title: 1,
+            article_image_view: 1,
+          })
+          .limit(10 - recommendLevelFirstList.length)
+          .sort({
+            c_time: -1
+          })
+          .lean()
+        recommendList.push(...recommendNewList)
       }
     }
 
-    // const newList = await articleModel.find(findObj, {
-    //   id: 1,
-    //   title: 1,
-    //   article_image_view: 1,
-    // })
-    //   .limit(20)
-    //   .sort({
-    //     c_time: -1
-    //   })
-    //   .lean()
 
     const note = humb(details)
     note.author.headImg = note.author.headImg + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/40'
     note.simplifyCTime = simplifyTime(note.cTime, `发布`)
     note.simplifyMTime = simplifyTime(note.mTime, `更新`)
     note.zanStr = num2Str(note.zan)
-
+    const anchorList = []
     if (imageMogr2 - 0 === 1) {
-      // 替换旧图片
-      note.content.replace(/(webascii\/old_pictures\/uploads\/)(.*?)(\.png|\.jpg)/g, (res, val1, val2, val3, index, content) => {
-        if (res.indexOf('_s.png') >= 0) {
-          note.content = note.content.replace(res, res.replace(val3, val3 + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80'))
-        }
-      })
-      // 替换新图片
-      note.content.replace(/(webascii\/files\/)(.*?)(\.png|\.jpg)/g, (res, val1, val2, val3, index, content) => {
-        note.content = note.content.replace(res, res.replace(val3, val3 + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80'))
-        // console.log(res)
-      })
 
-
-
+      note.content = replaceContentImg(note.content)
 
       const content = html2json(note.content)
 
-
-      // content.child.forEach(data => {
-      //   // if () {
-      //   //
-      //   // }
-      // })
-      const anchorList = []
       let anchorNum = 1
 
 
@@ -410,15 +493,9 @@ module.exports = {
         return arr
       }
       content.child = dealNode(content.child)
-
-      note.anchorList = anchorList
       note.content = json2html(content)
-      // note.content = content
-
-
-
-
     }
+    note.anchorList = anchorList
 
     ctx.body = {
       status: 200,
@@ -431,6 +508,7 @@ module.exports = {
         allViews: allViews.total,
         allViewsStr: num2Str(allViews.total),
         // newNoteList: humb(newList)
+        recommendList: humb(recommendList)
       }
     }
   },
@@ -606,17 +684,7 @@ module.exports = {
     note.simplifyMTime = simplifyTime(note.mTime, `更新`)
     note.zanStr = num2Str(note.zan)
 
-    // 替换旧图片
-    note.content.replace(/(webascii\/old_pictures\/uploads\/)(.*?)(\.png|\.jpg)/g, (res, val1, val2, val3, index, content) => {
-      if (res.indexOf('_s.png') >= 0) {
-        note.content = note.content.replace(res, res.replace(val3, val3 + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80'))
-      }
-    })
-    // 替换新图片
-    note.content.replace(/(webascii\/files\/)(.*?)(\.png|\.jpg)/g, (res, val1, val2, val3, index, content) => {
-      note.content = note.content.replace(res, res.replace(val3, val3 + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80'))
-      // console.log(res)
-    })
+    note.content = replaceContentImg(note.content)
 
     ctx.body = {
       status: 200,
