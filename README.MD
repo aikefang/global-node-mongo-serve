@@ -30,6 +30,9 @@ npm run dev
 
 
 
+# log日志类型
+* article-view 文章访问
+
 # 日志类型
 
 

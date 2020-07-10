@@ -13,6 +13,8 @@ const _ = require('lodash')
 
 const {html2json, json2html} = require('html2json')
 
+const common = require('../../../lib/common')
+
 module.exports = {
   async list(ctx, next) {
     let pageSize = parseInt(ctx.request.query.pageSize, 10) || 10
@@ -209,6 +211,9 @@ module.exports = {
   async details(ctx) {
     const id = ctx.request.query.id
     const imageMogr2 = ctx.request.query.imageMogr2
+    common.log('article-view', {
+      id
+    })
     if (!global.custom.mongoose.Types.ObjectId.isValid(id)) {
       return ctx.body = {
         status: 500001,
