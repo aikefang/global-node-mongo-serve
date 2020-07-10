@@ -109,6 +109,15 @@ module.exports = {
       levelFirst,
       levelSecond,
     } = ctx.request.query
+    
+    // 记录搜索词
+    setTimeout(() => {
+      if (keyword.replace(/\s+/g, '')) {
+        common.log('search-key', {
+          keyword
+        })
+      }
+    }, 0)
 
     const reg = new RegExp(keyword, 'i')
     const type = {}
@@ -119,6 +128,13 @@ module.exports = {
       if (levelSecond) {
         type.levelSecond = levelSecond
       }
+    }
+
+    if (levelFirst && levelSecond) {
+      common.log('category-view', {
+        levelFirst: common.ObjectId(levelFirst),
+        levelSecond: common.ObjectId(levelFirst),
+      })
     }
     const params = {
       ...type
@@ -211,9 +227,7 @@ module.exports = {
   async details(ctx) {
     const id = ctx.request.query.id
     const imageMogr2 = ctx.request.query.imageMogr2
-    common.log('article-view', {
-      id
-    })
+
     if (!global.custom.mongoose.Types.ObjectId.isValid(id)) {
       return ctx.body = {
         status: 500001,
@@ -499,6 +513,18 @@ module.exports = {
       }
       content.child = dealNode(content.child)
       note.content = json2html(content)
+
+      // log
+      common.log('article-view', {
+        articleId: id,
+        articleAuthorId: details.author._id,
+        ip: common.getClientIP(ctx.req)
+      })
+
+      common.log('category-view', {
+        levelFirst: details.levelFirst._id,
+        levelSecond: details.levelSecond._id,
+      })
     }
     note.anchorList = anchorList
 

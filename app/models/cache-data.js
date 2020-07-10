@@ -12,4 +12,4 @@ let schema = new mongoose.Schema({
 	data: Object,
 })
 
-module.exports = db.model('user', schema)
+module.exports = db.model('cache_data', schema)
