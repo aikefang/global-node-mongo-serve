@@ -87,10 +87,10 @@ module.exports = {
   },
   // 热搜分类
   async hotSearch(ctx) {
-    const cache = await common.cacheData({
+    const list = await common.cacheData({
       cacheType: 'hot-category',
       async fn() {
-        return await logModel.aggregate([
+        let aggCategory = await logModel.aggregate([
           {
             $match: {
               type: 'category-view'
@@ -114,26 +114,42 @@ module.exports = {
             $limit: 10
           }
         ])
+
+        const res = await categoryModel.find(
+          {
+            $or: aggCategory.map(data => {
+              return {
+                _id: data._id
+              }
+            })
+          }, {
+            _id: 1,
+            title: 1,
+            seo: 1,
+          }
+        )
+          .populate('parent', {
+            _id: 1,
+            title: 1,
+            seo: 1,
+          })
+          .lean()
+        const categoryObj = {}
+        res.forEach(data => categoryObj[data._id] = data)
+        const list = []
+        aggCategory.forEach(data => list.push(categoryObj[data._id.toString()]))
+
+        return list
       },
-      // updateMillisecond: 1000 * 60 * 60 * 24
-      updateMillisecond: 1000 * 6
+      updateMillisecond: 1000 * 60 * 60 * 2
+      // updateMillisecond: 1000 * 6
     })
-
-    const res = await categoryModel.find({
-      $or: cache.map(data => {
-        return {
-          _id: data._id
-        }
-      })
-    })
-
-
 
     ctx.body = {
       status: 200,
       message: '成功',
       data: {
-        res
+        list
       }
     }
 
