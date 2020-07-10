@@ -152,7 +152,6 @@ module.exports = {
         list
       }
     }
-
   },
   async redirect(ctx) {
     let ids = ctx.request.query['ids[]']

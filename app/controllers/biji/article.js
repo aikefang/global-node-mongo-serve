@@ -3,6 +3,7 @@
 const articleModel = require('../../models/biji/article')
 const articleHistoryModel = require('../../models/biji/article-history')
 const articleDraftModel = require('../../models/biji/article-draft')
+const logModel = require('../../models/log')
 // const categoryModel = require('../../models/biji/category.server.model')
 // const userModel = require('../../models/user.server.model')
 const humb = require('../../../lib/hump')
@@ -91,6 +92,76 @@ module.exports = {
       data.author.headImgCompress = data.author.headImg + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/40'
       // data.headImg = allUser[data.authorId].headImg + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/40'
       // data.nickname = allUser[data.authorId].nickname
+    })
+
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: {
+        list
+      }
+    }
+  },
+  async hotList(ctx) {
+    const list = await common.cacheData({
+      cacheType: 'hot-article',
+      async fn() {
+        let aggArticle = await logModel.aggregate([
+          {
+            $match: {
+              type: 'article-view'
+            },
+          },
+          {
+            $project: {
+              'data': 1
+            },
+          },
+          {
+            $group: {
+              _id: '$data.articleId',
+              count: {$sum: 1}, // 统计总数量
+            }
+          },
+          {
+            $sort: {count: -1}// 根据date排序
+          },
+          {
+            $limit: 20
+          }
+        ])
+
+        const res = await articleModel.find(
+          {
+            $or: aggArticle.map(data => {
+              return {
+                _id: common.ObjectId(data._id)
+              }
+            })
+          }, {
+            _id: 1,
+            title: 1,
+            article_image_view: 1,
+          }
+        )
+          .lean()
+
+        const humbRes = humb(res)
+
+        const articleObj = {}
+        humbRes.forEach(data => articleObj[data._id] = data)
+        const list = []
+        aggArticle.forEach(data => {
+          // 只取 id存在的文章 && 有预览图的文章
+          if (articleObj[data._id.toString()] && articleObj[data._id.toString()].articleImageView) {
+            list.push(articleObj[data._id.toString()])
+          }
+        })
+
+        return list
+      },
+      // updateMillisecond: 1000 * 60 * 60 * 1
+      updateMillisecond: 1000 * 6
     })
 
     ctx.body = {
