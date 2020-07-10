@@ -1,6 +1,7 @@
 const categoryModel = require('../../models/biji/category')
 const humb = require('../../../lib/hump')
 const _ = require('lodash')
+const logModel = require('../../models/log')
 module.exports = {
   async list(ctx, next) {
     let pageSize = parseInt(ctx.request.query.pageSize, 10) || 10
@@ -82,6 +83,10 @@ module.exports = {
         list
       }
     }
+  },
+  // 热搜分类
+  async hotSearch(ctx) {
+
   },
   async redirect(ctx) {
     let ids = ctx.request.query['ids[]']

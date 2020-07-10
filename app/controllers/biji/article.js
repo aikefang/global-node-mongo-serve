@@ -109,10 +109,10 @@ module.exports = {
       levelFirst,
       levelSecond,
     } = ctx.request.query
-    
+
     // 记录搜索词
     setTimeout(() => {
-      if (keyword.replace(/\s+/g, '')) {
+      if (keyword && keyword.replace(/\s+/g, '')) {
         common.log('search-key', {
           keyword
         })
