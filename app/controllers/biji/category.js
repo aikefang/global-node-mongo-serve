@@ -141,6 +141,7 @@ module.exports = {
 
         return list
       },
+      // 两小时更新
       updateMillisecond: 1000 * 60 * 60 * 2
       // updateMillisecond: 1000 * 6
     })

@@ -160,8 +160,8 @@ module.exports = {
 
         return list
       },
-      // updateMillisecond: 1000 * 60 * 60 * 1
-      updateMillisecond: 1000 * 6
+      // 每小时更新一次
+      updateMillisecond: 1000 * 60 * 60
     })
 
     ctx.body = {
