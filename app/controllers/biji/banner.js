@@ -19,7 +19,7 @@ module.exports = {
 
     list.forEach(data => {
       if (imageMogr2) {
-        data.urlPath2 = data.urlPath + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80'
+        data.urlPath2 = data.urlPath + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/80|imageView2/1/w/800/h/300'
       } else {
         data.urlPath2 = data.urlPath
       }
