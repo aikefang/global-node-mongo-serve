@@ -2,6 +2,7 @@ const categoryModel = require('../../models/biji/category')
 const humb = require('../../../lib/hump')
 const _ = require('lodash')
 const logModel = require('../../models/log')
+const common = require('../../../lib/common')
 module.exports = {
   async list(ctx, next) {
     let pageSize = parseInt(ctx.request.query.pageSize, 10) || 10
@@ -86,6 +87,55 @@ module.exports = {
   },
   // 热搜分类
   async hotSearch(ctx) {
+    const cache = await common.cacheData({
+      cacheType: 'hot-category',
+      async fn() {
+        return await logModel.aggregate([
+          {
+            $match: {
+              type: 'category-view'
+            },
+          },
+          {
+            $project: {
+              'data': 1
+            },
+          },
+          {
+            $group: {
+              _id: '$data.levelSecond',
+              count: {$sum: 1}, // 统计总数量
+            }
+          },
+          {
+            $sort: {count: -1}// 根据date排序
+          },
+          {
+            $limit: 10
+          }
+        ])
+      },
+      // updateMillisecond: 1000 * 60 * 60 * 24
+      updateMillisecond: 1000 * 6
+    })
+
+    const res = await categoryModel.find({
+      $or: cache.map(data => {
+        return {
+          _id: data._id
+        }
+      })
+    })
+
+
+
+    ctx.body = {
+      status: 200,
+      message: '成功',
+      data: {
+        res
+      }
+    }
 
   },
   async redirect(ctx) {

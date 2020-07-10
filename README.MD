@@ -32,6 +32,8 @@ npm run dev
 
 # log日志类型
 * article-view 文章访问
+* category-view 分类访问
+* search-key 搜索词
 
 # 日志类型
 

@@ -133,7 +133,7 @@ module.exports = {
     if (levelFirst && levelSecond) {
       common.log('category-view', {
         levelFirst: common.ObjectId(levelFirst),
-        levelSecond: common.ObjectId(levelFirst),
+        levelSecond: common.ObjectId(levelSecond),
       })
     }
     const params = {
