@@ -36,6 +36,11 @@ let schema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'webascii_biji_category'
 	},
+	// 文章标签
+	article_tags: {
+		type: Array,
+		default: []
+	},
 	// 文章预览图
 	article_image_view: String,
 	// 推荐 0：不推荐，1：推荐
