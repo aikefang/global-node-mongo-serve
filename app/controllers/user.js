@@ -131,7 +131,6 @@ module.exports = {
       data: {}
     }
   },
-
   // 注册
   async register(ctx) {
     const account = ctx.request.query.account
@@ -208,6 +207,48 @@ module.exports = {
       data: {
         account: userData.account,
         _id: userData._id,
+      }
+    }
+  },
+  // 用户基本信息
+  async baseInfo(ctx) {
+    const userId = ctx.session.userInfo._id
+    
+    const res = await userModel
+      .findOne({
+        _id: userId
+      }, {
+        _id: 1,
+        nickname: 1,
+        head_img: 1,
+        c_time: 1,
+      })
+      .populate('github')
+      .populate('qq')
+      .lean()
+
+    // const userData = res
+
+    // console.log(res.github)
+    const github = {
+      login: res.github.info.login,
+      avatar_url: res.github.info.avatar_url,
+      html_url: res.github.info.html_url,
+    }
+
+    const qq = {
+      nickname: res.qq.info.nickname,
+      figureurl_qq: res.qq.info.figureurl_qq,
+    }
+
+    ctx.body = {
+      status: 200,
+      data: {
+        info: humb({
+          ...res,
+          github,
+          qq,
+        })
       }
     }
   }

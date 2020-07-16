@@ -5,6 +5,7 @@ const ai = require('../../lib/abnormal-interception')
 router.post('/login', ai(controller.login))
 router.get('/logout', ai(controller.logout))
 router.get('/info', ai(controller.info))
+router.get('/baseInfo', ai(controller.baseInfo))
 router.post('/register', ai(controller.register))
 
 module.exports = router
