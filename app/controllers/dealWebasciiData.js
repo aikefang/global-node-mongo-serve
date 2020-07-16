@@ -94,6 +94,60 @@ module.exports = {
       article
     }
   },
+  // 处理文档文章
+  async articleDoc(ctx, next) {
+    async function getContent() {
+      return new Promise((resolve, reject) => {
+        connection.query(`select * from doc_content`, [], function (error, results, fields) {
+          if (error) {
+            throw error
+          }
+          resolve(results)
+        })
+      })
+    }
+    let res = await getContent()
+    // ctx.body = res
+    // return
+    for (const data of res) {
+      // 新增
+      let webasciiBijiArticleEnity = new webasciiBijiArticleModel({
+        ...{
+          title: data.title,
+          article_describe: data.article_describe,
+          content: data.content,
+          views: data.views,
+          article_image_view: data.article_image_view,
+          article_tags: data.article_tags.split(','),
+        },
+        c_time: new Date(data.c_time),
+        m_time: data.m_time ? new Date(data.m_time) : null,
+        author: global.custom.mongoose.Types.ObjectId('5ef2c7d559545aead05b0d41'),
+        levelFirst: global.custom.mongoose.Types.ObjectId('5f1017f07ab8420e690fac55'),
+        levelSecond: global.custom.mongoose.Types.ObjectId('5f101c1d7ab8420e690fac58')
+      })
+
+      // 创建用户
+      webasciiBijiArticleModel.create(webasciiBijiArticleEnity, (err, data) => {
+        if (err) return console.log(err)
+      })
+    }
+
+    ctx.body = res
+    // let article = await webasciiBijiArticleModel.find({
+    //   id: 1
+    // }).populate(
+    //   'author',
+    //   {
+    //     _id: 1,
+    //     id: 1,
+    //     nickname: 1,
+    //     head_img: 1,
+    //   })
+    // ctx.body = {
+    //   article
+    // }
+  },
   // 处理文章历史记录
   async articleHistory(ctx, next) {
     async function getContent() {
