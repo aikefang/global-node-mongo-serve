@@ -213,7 +213,7 @@ module.exports = {
   // 用户基本信息
   async baseInfo(ctx) {
     const userId = ctx.session.userInfo._id
-    
+
     const res = await userModel
       .findOne({
         _id: userId
@@ -243,13 +243,19 @@ module.exports = {
 
     ctx.body = {
       status: 200,
+      message: '成功',
       data: {
         info: humb({
           ...res,
           github,
           qq,
+          head_img: res.head_img + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/100|imageView2/1/w/180/h/180',
+
         })
       }
     }
+  },
+  async updateAvatar(ctx) {
+
   }
 }
