@@ -366,7 +366,9 @@ module.exports = {
 
     // 获取总数量 estimatedDocumentCount 和 countDocuments 都可获取总数
     // const allArticleNum = await articleModel.estimatedDocumentCount()
-    const allArticleNum = await articleModel.countDocuments()
+    const allArticleNum = await articleModel.countDocuments({
+      author: details.author._id
+    })
 
     // 获取总浏览量
     const [allViews] = await articleModel.aggregate([

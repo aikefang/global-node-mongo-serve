@@ -1,5 +1,9 @@
 const userModel = require('../models/user')
+const articleModel = require('../models/biji/article')
+const logModel = require('../models/log')
+const common = require('../../lib/common')
 const humb = require('../../lib/hump')
+const moment = require('moment')
 module.exports = {
   // 登录
   async login(ctx, next) {
@@ -227,9 +231,6 @@ module.exports = {
       .populate('qq')
       .lean()
 
-    // const userData = res
-
-    // console.log(res.github)
     const github = {
       login: res.github.info.login,
       avatar_url: res.github.info.avatar_url,
@@ -241,6 +242,154 @@ module.exports = {
       figureurl_qq: res.qq.info.figureurl_qq,
     }
 
+    const yesterdayViews = await common.cacheData({
+      async fn() {
+        let beginTime = moment()
+          .subtract(1, "days")
+          .format("YYYY-MM-DD 00:00:00")
+        let endTime = moment()
+          .format("YYYY-MM-DD 00:00:00")
+        // 昨日浏览量
+        const [yesterdayViews] = await logModel.aggregate([
+          {
+            $match: {
+              $and: [
+                {
+                  'data.articleAuthorId': common.ObjectId(userId),
+                },
+                {
+                  created: {
+                    $gte: new Date(beginTime)
+                  }
+                },
+                {
+                  created: {
+                    $lte: new Date(endTime)
+                  }
+                }
+              ]
+
+            }
+          },
+          {
+            $group: {
+              _id: '$data.articleAuthorId',
+              count: {
+                $sum: 1
+              }
+            }
+          }
+        ])
+        let count = 0
+
+        if (yesterdayViews && yesterdayViews.count) {
+          count = yesterdayViews.count
+        }
+        return count
+      },
+      cacheType: `yesterdayViews-${userId}`,
+      updateMillisecond: 12 * 60 * 60 * 1000
+    })
+
+    const todayViews = await common.cacheData({
+      async fn() {
+        let beginTime = moment()
+          .format("YYYY-MM-DD 00:00:00")
+        let endTime = moment()
+          .format("YYYY-MM-DD 23:59:59")
+        // 昨日浏览量
+        const [todayViews] = await logModel.aggregate([
+          {
+            $match: {
+              $and: [
+                {
+                  'data.articleAuthorId': common.ObjectId(userId),
+                },
+                {
+                  created: {
+                    $gte: new Date(beginTime)
+                  }
+                },
+                {
+                  created: {
+                    $lte: new Date(endTime)
+                  }
+                }
+              ]
+
+            }
+          },
+          {
+            $group: {
+              _id: '$data.articleAuthorId',
+              count: {
+                $sum: 1
+              }
+            }
+          }
+        ])
+
+        let count = 0
+
+        if (todayViews && todayViews.count) {
+          count = todayViews.count
+        }
+
+        return count
+      },
+      cacheType: `todayView-${userId}`,
+      updateMillisecond: 60 * 60 * 1000
+    })
+
+    const articleCount = await common.cacheData({
+      async fn() {
+        // 文章数量
+        const articleCount = await articleModel.countDocuments({
+          author: userId
+        })
+        return articleCount
+      },
+      cacheType: `articleCount-${userId}`,
+      updateMillisecond: 60 * 60 * 1000
+    })
+
+    const allViews = await common.cacheData({
+      async fn() {
+        // 获取总浏览量
+        const [allViews] = await articleModel.aggregate([
+          {
+            $match: {
+              author: common.ObjectId(userId)
+            }
+          },
+          {
+            $group: {
+              _id: '$author',
+              count: {
+                $sum: '$views'
+              }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+            }
+          }
+        ])
+        let count = 0
+
+        if (allViews && allViews.count) {
+          count = allViews.count
+        }
+        return count
+      },
+      cacheType: `allViews-${userId}`,
+      updateMillisecond: 24 * 60 * 60 * 1000
+    })
+
+
+
+
     ctx.body = {
       status: 200,
       message: '成功',
@@ -250,7 +399,10 @@ module.exports = {
           github,
           qq,
           head_img: res.head_img + '?imageMogr2/auto-orient/strip/format/jpg/interlace/1/quality/100|imageView2/1/w/180/h/180',
-
+          articleCount,
+          yesterdayViews,
+          todayViews,
+          allViews,
         })
       }
     }
