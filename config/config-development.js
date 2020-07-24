@@ -7,3 +7,4 @@ exports.mysql = {
   webascii: config.server.mysql
 }
 exports.server = config.server
+exports.github = config.github

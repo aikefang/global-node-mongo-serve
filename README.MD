@@ -35,6 +35,7 @@ npm run dev
 * category-view 分类访问
 * search-key 搜索词
 * github-hook-data github hook请求数据
+* github-request-path-error github hook接口请求路径拿内容接口报错
 
 # 日志类型
 

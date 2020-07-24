@@ -9,25 +9,26 @@ let mongoose = require("mongoose")
 let schema = new mongoose.Schema({
 	// 标题
 	title: String,
-	// seo关键词
-	seo: {
+	// git文件路径
+	path: {
 		type: String,
 		required: true
 	},
 	// 内容
 	content: String,
+	markdown: {
+		type: String,
+		required: true
+	},
 	// 预览图
-	// imageView: String,
+	imageView: String,
 	// 浏览量
 	views: {
 		type: Number,
 		default: 0
 	},
-	// 作者
 	author: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'user',
-		required: true,
+		type: Object
 	},
 	/**
 	 * 是否可用
@@ -53,24 +54,10 @@ let schema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'tag',
 	}],
-	// 子集
-	// children: Array,
-	// // 主分类
-	// category: {
-	// 	type: mongoose.Schema.Types.ObjectId,
-	// 	ref: 'doc_category',
-	// 	required: true
-	// },
-	/**
-	 * 是否为父级
-	 * true：父级
-	 * false：子集(子集可能会有子集)
-	 */
-	parent: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'doc',
-		// required: true
-	}
+	commit: {
+		type: Array,
+		default: []
+	},
 })
 
 module.exports = db.model("doc", schema)
