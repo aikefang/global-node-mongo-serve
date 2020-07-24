@@ -34,6 +34,7 @@ npm run dev
 * article-view 文章访问
 * category-view 分类访问
 * search-key 搜索词
+* github-hook-data github hook请求数据
 
 # 日志类型
 
