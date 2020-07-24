@@ -1,3 +1,7 @@
+/**
+ * 定时任务
+ * 排查请求失败的git文件 重新请求
+ */
 const logModel = require('../app/models/log')
 
 const runGithub = require('../lib/run-github')
@@ -8,7 +12,6 @@ const fn = async () => {
 
   // 定时任务 30秒一次
   schedule.scheduleJob('30 * * * * *', async () => {
-    console.log(new Date())
     const res = await logModel.find({
       type: 'github-request-path-error'
     })
@@ -26,9 +29,7 @@ const fn = async () => {
         logModel.remove({
           type: 'github-request-path-error',
           data: path
-        }, (data) => {
-          console.log(data)
-        })
+        }, (data) => {})
       }
     })
   })
