@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development supervisor ./server.js",
-    "prod": "pm2 start pm2.config.js --env production"
+    "prod": "pm2 start pm2.config.js --env production",
+    "task-dev": "cross-env NODE_ENV=development supervisor ./timed-tasks.js"
   },
   "repository": {
     "type": "git",
