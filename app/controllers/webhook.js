@@ -6,7 +6,10 @@ const common = require('../../lib/common')
 // const moment = require('moment')
 module.exports = {
   async github(ctx) {
-    common.log('github-hook-data', ctx.request.body)
+    if (ctx.request.body.ref === 'refs/heads/master') {
+      common.log('github-hook-data', ctx.request.body)
+    }
+
     ctx.body =  ctx.request.body
   }
 }
