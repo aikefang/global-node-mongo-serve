@@ -46,7 +46,7 @@ module.exports = {
       // 获取文件提交记录
       // https://api.github.com/repos/aikefang/suchaxun-doc/commits?path=linux/ab3.md&per_page=100&page=1
 
-      const commit = ctx.request.body.commit
+      const commit = ctx.request.body.commits
 
       const filePath = []
 
