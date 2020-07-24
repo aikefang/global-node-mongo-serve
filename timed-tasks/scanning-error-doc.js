@@ -10,8 +10,8 @@ const schedule = require('node-schedule')
 
 const fn = async () => {
 
-  // 定时任务 30秒一次
-  schedule.scheduleJob('30 * * * * *', async () => {
+  // 定时任务 50秒一次
+  schedule.scheduleJob('50 * * * * *', async () => {
     const res = await logModel.find({
       type: 'github-request-path-error'
     })

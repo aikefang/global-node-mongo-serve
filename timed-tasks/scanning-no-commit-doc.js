@@ -11,11 +11,13 @@ const schedule = require('node-schedule')
 
 const fn = async () => {
 
-  // 定时任务 30秒一次
-  schedule.scheduleJob('30 * * * * *', async () => {
+  // 定时任务 一小时一次
+  schedule.scheduleJob('30 1 * * * *', async () => {
 
     const res = await docModel.find({
       commit: []
+    }, {
+      path: 1
     })
 
     // 没有数据不执行
