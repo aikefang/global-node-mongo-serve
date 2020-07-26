@@ -3,15 +3,13 @@
  * 排查请求失败的git文件 重新请求
  */
 const logModel = require('../app/models/log')
-
 const runGithub = require('../lib/run-github')
-
 const schedule = require('node-schedule')
 
 const fn = async () => {
 
   // 定时任务 50秒一次
-  schedule.scheduleJob('50 * * * * *', async () => {
+  const s = schedule.scheduleJob('50 * * * * *', async () => {
     const res = await logModel.find({
       type: 'github-request-path-error'
     })
@@ -34,9 +32,12 @@ const fn = async () => {
     })
   })
 
+
+  // 45秒后取消定时器
+  setTimeout(() => {
+    s.cancel()
+  }, 45000)
+
 }
-
-
-// exports = fn
 
 module.exports = fn

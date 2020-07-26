@@ -2,17 +2,14 @@
  * 定时任务
  * 排查commit请求记录请求失败的git文件 重新请求
  */
-
 const docModel = require('../app/models/doc/doc')
-
 const runGithub = require('../lib/run-github')
-
 const schedule = require('node-schedule')
 
 const fn = async () => {
 
   // 定时任务 一小时一次
-  schedule.scheduleJob('30 1 * * * *', async () => {
+  const s = schedule.scheduleJob('30 1 * * * *', async () => {
 
     const res = await docModel.find({
       commit: []
@@ -32,9 +29,11 @@ const fn = async () => {
     })
   })
 
+  // 50分钟后取消定时器
+  setTimeout(() => {
+    s.cancel()
+  }, 1000 * 60 * 50)
+
 }
-
-
-// exports = fn
 
 module.exports = fn
