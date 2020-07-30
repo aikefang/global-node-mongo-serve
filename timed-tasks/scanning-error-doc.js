@@ -24,7 +24,7 @@ const fn = async () => {
     runGithub({
       list,
       successCallback(path) {
-        logModel.remove({
+        logModel.deleteOne({
           type: 'github-request-path-error',
           data: path
         }, (data) => {})

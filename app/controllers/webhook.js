@@ -18,7 +18,7 @@ module.exports = {
 
       const filePath = []
 
-      commit.forEach(data => {
+      !!commit && commit.forEach(data => {
         // 当前提交有新增文件
         if (data.added.length > 0) {
           data.added.forEach(addData => {
@@ -40,11 +40,10 @@ module.exports = {
 
       // 去重
       const filterPath = [...new Set(filePath)]
-
-
+      
       runGithub({
         list: filterPath,
-        successCallback (path) {
+        errorCallback (path) {
           common.log('github-request-path-error', path)
         }
       })
