@@ -1,14 +1,9 @@
 let mongoose = require("mongoose")
-/**
- * 说明
- * @type {mongoose.Schema}
- * 父级 parent = null
- * 子集 parent = 父级._id
- * seo关键字 用户url路由
- */
 let schema = new mongoose.Schema({
 	// 标题
 	title: String,
+	// 分类
+	category: String,
 	// git文件路径
 	path: {
 		type: String,
@@ -21,15 +16,15 @@ let schema = new mongoose.Schema({
 		required: true
 	},
 	// 预览图
-	imageView: String,
+	// imageView: String,
 	// 浏览量
 	views: {
 		type: Number,
 		default: 0
 	},
-	author: {
-		type: Object
-	},
+	// author: {
+	// 	type: Object
+	// },
 	/**
 	 * 是否可用
 	 * 1:是否可用
@@ -55,7 +50,8 @@ let schema = new mongoose.Schema({
 		ref: 'tag',
 	}],
 	commit: {
-		type: Array,
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'doc_commit',
 		default: []
 	},
 })
