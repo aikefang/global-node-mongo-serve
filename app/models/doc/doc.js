@@ -52,7 +52,7 @@ let schema = new mongoose.Schema({
 	commit: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'doc_commit',
-		default: []
+		default: null
 	},
 })
 

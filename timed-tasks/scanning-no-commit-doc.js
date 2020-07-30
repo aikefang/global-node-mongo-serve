@@ -12,7 +12,7 @@ const fn = async () => {
   const s = schedule.scheduleJob('30 1 * * * *', async () => {
 
     const res = await docModel.find({
-      commit: []
+      commit: null
     }, {
       path: 1
     })
