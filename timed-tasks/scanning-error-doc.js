@@ -10,6 +10,7 @@ const fn = async () => {
 
   // 定时任务 50秒一次
   const s = schedule.scheduleJob('50 * * * * *', async () => {
+    console.log('scanning-error-doc定时任务启动')
     const res = await logModel.find({
       type: 'github-request-path-error'
     })
@@ -34,9 +35,9 @@ const fn = async () => {
 
 
   // 45秒后取消定时器
-  setTimeout(() => {
-    s.cancel()
-  }, 45000)
+  // setTimeout(() => {
+  //   s.cancel()
+  // }, 45000)
 
 }
 

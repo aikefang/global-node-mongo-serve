@@ -10,7 +10,7 @@ const fn = async () => {
 
   // 定时任务 一小时一次
   const s = schedule.scheduleJob('30 1 * * * *', async () => {
-
+    console.log('scanning-no-commit-doc定时任务启动')
     const res = await docModel.find({
       commit: null
     }, {
@@ -30,9 +30,10 @@ const fn = async () => {
   })
 
   // 50分钟后取消定时器
-  setTimeout(() => {
-    s.cancel()
-  }, 1000 * 60 * 50)
+  // setTimeout(() => {
+  //   console.log('scanning-no-commit-doc定时任务结束')
+  //   s.cancel()
+  // }, 1000 * 60 * 50)
 
 }
 

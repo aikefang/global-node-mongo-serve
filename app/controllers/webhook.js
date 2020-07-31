@@ -40,7 +40,7 @@ module.exports = {
 
       // 去重
       const filterPath = [...new Set(filePath)]
-      
+
       runGithub({
         list: filterPath,
         errorCallback (path) {
