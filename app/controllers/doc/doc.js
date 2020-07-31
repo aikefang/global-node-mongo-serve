@@ -6,12 +6,13 @@ module.exports = {
     const keyword = ctx.request.query.keyword
     const pageNum = ctx.request.query.pageNum || 1
     const pageSize = ctx.request.query.pageSize || 10
+    // 检查非必填
     const checked = common.checkRequired({
       keyword
     }, ctx)
     if (!checked) return
-    // const reg = new RegExp(keyword, 'i')
 
+    // 分析关键词
     const kArr = [...new Set(keyword.split(' '))].filter((str) => {
       return str !== ''
     })
@@ -30,7 +31,6 @@ module.exports = {
       // searchParams.$or = or
       searchParams.$and = or
     }
-
     const res = await docModel.find(
       searchParams,
       {
@@ -56,18 +56,15 @@ module.exports = {
      *
      */
 
-
-
-
-
-
     ctx.body = {
       status: 200,
       message: 'ok',
       data: {
         keyword,
-        res,
-        kArr,
+        keywordList: kArr,
+        list: res,
+        pageNum,
+        pageSize,
       }
     }
   },
