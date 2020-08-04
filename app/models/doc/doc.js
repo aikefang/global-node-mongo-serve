@@ -54,6 +54,11 @@ let schema = new mongoose.Schema({
 		ref: 'doc_commit',
 		default: null
 	},
+	icon: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'doc_category',
+		required: true
+	}
 })
 
 module.exports = db.model("doc", schema)

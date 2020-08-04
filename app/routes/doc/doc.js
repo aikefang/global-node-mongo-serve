@@ -7,5 +7,6 @@ const ai = require('../../../lib/abnormal-interception')
 // router.get('/list', ai(controller.list))
 router.get('/search', ai(controller.search))
 router.get('/content', ai(controller.content))
+router.post('/addCategory', ai(controller.addCategory))
 
 module.exports = router

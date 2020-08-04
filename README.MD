@@ -36,6 +36,7 @@ npm run dev
 * search-key 搜索词
 * github-hook-data github hook请求数据
 * github-request-path-error github hook接口请求路径拿内容接口报错
+* find-icon-error 在添加新的文档前查询分类，未查询到相关分类错误
 
 # 日志类型
 
