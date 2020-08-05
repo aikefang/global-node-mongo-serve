@@ -16,10 +16,11 @@ const storage = multer.diskStorage({
   async filename(req, file, cb) {
     const fileFormat = (file.originalname).split(".");  // 以点分割成数组，数组的最后一项就是后缀名
     const suffix = '.' + fileFormat[fileFormat.length - 1]
-    const name = file.originalname.replace(suffix, '')
+    const name = file.originalname.replace(suffix, '').replace(/\s+/g, '')
     const v1 = uuid.v1()
     const hash = `${fnv.hash(v1, 64).str()}`
-    cb(null, `${name}-${hash}${suffix}`)
+    // cb(null, `${name}-${hash}${suffix}`)
+    cb(null, `${hash}${suffix}`)
   }
 })
 //加载配置

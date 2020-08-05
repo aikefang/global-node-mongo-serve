@@ -2,7 +2,9 @@ const upload = require('../../lib/upload')
 module.exports = {
   async files(ctx) {
     const file = ctx.req.file
-    const res = await upload(file, 'webascii/files/')
+    const res = await upload(file, 'webascii/files/', {
+      size: true,
+    })
     if (!res) {
       return ctx.body = {
         status: 400001,
@@ -19,7 +21,9 @@ module.exports = {
   },
   async bookView(ctx) {
     const file = ctx.req.file
-    const res = await upload(file, 'webascii/book-view/')
+    const res = await upload(file, 'webascii/book-view/',{
+      size: true,
+    })
     if (!res) {
       return ctx.body = {
         status: 400001,
