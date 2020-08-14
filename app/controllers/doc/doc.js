@@ -6,8 +6,8 @@ module.exports = {
   // 搜索
   async search(ctx) {
     const keyword = ctx.request.query.keyword
-    const pageNum = ctx.request.query.pageNum || 1
-    const pageSize = ctx.request.query.pageSize || 10
+    const pageNum = Number(ctx.request.query.pageNum || 1)
+    const pageSize = Number(ctx.request.query.pageSize || 10)
     // 检查非必填
     const checked = common.checkRequired({
       keyword
@@ -77,6 +77,8 @@ module.exports = {
      *
      */
 
+    const total = await docModel.countDocuments(searchParams)
+
     ctx.body = {
       status: 200,
       message: 'ok',
@@ -84,8 +86,10 @@ module.exports = {
         keyword,
         keywordList: kArr,
         list: res,
+        hasMore: !(pageNum * pageSize >= total),
         pageNum,
         pageSize,
+        total: total
       }
     }
   },
@@ -99,11 +103,20 @@ module.exports = {
     }, ctx)
     if (!checked) return
 
-    const res = await docModel.findOne({
-      path,
-    }, {
-      commit: 0
-    })
+    const res = await docModel.findOneAndUpdate(
+      {
+        path,
+      },
+      {
+        $inc: {
+          views: 1
+        }
+      },
+      {
+        new: true,
+        upsert: false
+      }
+    )
 
     if (res) {
       return ctx.body = {
