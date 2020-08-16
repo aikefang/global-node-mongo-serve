@@ -407,6 +407,37 @@ module.exports = {
       }
     }
   },
+  async weixinLogin(ctx) {
+    const code = ctx.request.query.code
+    // 检查非必填
+    const checked = common.checkRequired({
+      code
+    }, ctx)
+    if (!checked) return
+
+    const res = await common.request.get('https://api.weixin.qq.com/sns/jscode2session', {
+      appid: '',
+      secret: '',
+      grant_type: 'authorization_code',
+      js_code: code
+    })
+
+    if (res && res.openid) {
+      return ctx.body = {
+        status: 200,
+        message: 'ok',
+        data: res
+      }
+    } else {
+      return ctx.body = {
+        status: 200100,
+        message: 'error',
+        data: {
+          ...res
+        }
+      }
+    }
+  },
   async updateAvatar(ctx) {
 
   }
