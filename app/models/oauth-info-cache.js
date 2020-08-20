@@ -7,6 +7,7 @@ let schema = new mongoose.Schema({
 	 * 信息类型
 	 * github: github用户信息
 	 * qq: qq用户信息
+	 * weixin: 微信用户信息
 	 */
 	type: {
 		type: String,

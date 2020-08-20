@@ -1,9 +1,12 @@
 const userModel = require('../models/user')
 const articleModel = require('../models/biji/article')
 const logModel = require('../models/log')
+const oauthModel = require('../models/oauth-info-cache')
 const common = require('../../lib/common')
+const fetch = require('../../lib/fetch')
 const humb = require('../../lib/hump')
 const moment = require('moment')
+const config = require('../../config/config')
 module.exports = {
   // 登录
   async login(ctx, next) {
@@ -388,8 +391,6 @@ module.exports = {
     })
 
 
-
-
     ctx.body = {
       status: 200,
       message: '成功',
@@ -414,10 +415,10 @@ module.exports = {
       code
     }, ctx)
     if (!checked) return
-
+    const {appid, secret} = config.server.xiaochengxu
     const res = await common.request.get('https://api.weixin.qq.com/sns/jscode2session', {
-      appid: '',
-      secret: '',
+      appid,
+      secret,
       grant_type: 'authorization_code',
       js_code: code
     })
@@ -437,6 +438,135 @@ module.exports = {
         }
       }
     }
+  },
+  async updateWeixinUser(ctx) {
+    const unionid = ctx.request.body.unionid
+    const openid = ctx.request.body.openid
+    const info = ctx.request.body.info
+
+    // 检查非必填
+    const checked = common.checkRequired({
+      openid,
+      unionid,
+      info,
+    }, ctx)
+    if (!checked) return
+
+    // const res = await oauthModel.findOne({
+    //   type: 'weixin',
+    //   'info.unionid': unionid,
+    //   'info.openid': openid,
+    // }).lean()
+
+    // 新增或者更新 授权数据
+    const authData = await oauthModel.findOneAndUpdate(
+      {
+        id: unionid.toString()
+      },
+      {
+        $set: {
+          type: 'weixin',
+          info: {
+            unionid: unionid,
+            openid: openid,
+            ...info
+          },
+          mTime: new Date()
+        }
+      },
+      {
+        new: true,
+        upsert: true
+      }
+    )
+
+    const updateData = {
+      nickname: authData.info.nickName,
+      weixin: authData._id,
+      user_type: 3
+    }
+
+    // 查询用户
+    const userRes = await userModel.findOne({
+      weixin: authData._id
+    })
+    // 用户不存在
+    if (!userRes) {
+      updateData.c_time = new Date()
+      // 将微信头像地址处理成CDN地址
+      const imgData = await fetch(authData.info.avatarUrl, 'suchaxun/user/header/')
+      updateData.head_img = '//static.webascii.cn/' + imgData.key
+    }
+
+    // 新增或者更新 用户
+    const userInfo = await userModel.findOneAndUpdate(
+      {
+        weixin: authData._id
+      },
+      {
+        $set: updateData
+      },
+      {
+        new: true,
+        upsert: true
+      }
+    )
+      .populate('weixin')
+      .lean()
+
+    ctx.body = {
+      status: 200,
+      message: 'ok',
+      data: {
+        ...userInfo
+      }
+    }
+  },
+  // 获取微信用户信息
+  async getWeixinUser(ctx) {
+    const unionid = ctx.request.query.unionid
+    const openid = ctx.request.query.openid
+    // 检查非必填
+    const checked = common.checkRequired({
+      openid,
+      unionid,
+    }, ctx)
+    if (!checked) return
+    const res = await oauthModel.findOne({
+      type: 'weixin',
+      'info.unionid': unionid,
+      'info.openid': openid,
+    }).lean()
+    if (!res) {
+      return ctx.body = {
+        status: 200000,
+        message: '用户不存在',
+        data: {}
+      }
+    }
+
+    const userRes = await userModel.findOne({
+      weixin: res._id
+    })
+      .populate('weixin')
+      .lean()
+
+    if (!userRes) {
+      return ctx.body = {
+        status: 200000,
+        message: '用户不存在',
+        data: {}
+      }
+    }
+
+    ctx.body = {
+      status: 200,
+      message: 'ok',
+      data: {
+        ...userRes
+      }
+    }
+
   },
   async updateAvatar(ctx) {
 

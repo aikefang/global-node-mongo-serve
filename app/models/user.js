@@ -24,6 +24,7 @@ let schema = new mongoose.Schema({
 	 * 用户类型
 	 * 1：后台用户
 	 * 2：笔记网站用户
+	 * 3：菜鸟快查用户
 	 */
 	user_type: Number,
 	// 头像
@@ -34,6 +35,11 @@ let schema = new mongoose.Schema({
 		ref: 'oauth_info_cache'
 	},
 	qq: {
+		type: mongoose.Schema.Types.ObjectId,
+		default: null,
+		ref: 'oauth_info_cache'
+	},
+	weixin: {
 		type: mongoose.Schema.Types.ObjectId,
 		default: null,
 		ref: 'oauth_info_cache'
