@@ -43,7 +43,7 @@ let schema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		default: null,
 		ref: 'oauth_info_cache'
-	},
+	}
 })
 
 module.exports = db.model('user', schema)

@@ -2,11 +2,13 @@ const userModel = require('../models/user')
 const articleModel = require('../models/biji/article')
 const logModel = require('../models/log')
 const oauthModel = require('../models/oauth-info-cache')
+const unionidEncryptionModel = require('../models/unionid-encryption')
 const common = require('../../lib/common')
 const fetch = require('../../lib/fetch')
 const humb = require('../../lib/hump')
 const moment = require('moment')
 const config = require('../../config/config')
+const md5 = require('md5')
 module.exports = {
   // 登录
   async login(ctx, next) {
@@ -423,11 +425,34 @@ module.exports = {
       js_code: code
     })
 
+
     if (res && res.openid) {
+      let id = md5(res.unionid.toString())
+      const idRes = await unionidEncryptionModel.findOneAndUpdate(
+        {
+          id
+        },
+        {
+          $set: {
+            id,
+            data: res
+          }
+        },
+        {
+          new: true,
+          upsert: true
+        }
+      )
+      const hasLogin = await oauthModel.findOne({
+        id: idRes.data.unionid.toString()
+      })
       return ctx.body = {
         status: 200,
         message: 'ok',
-        data: res
+        data: {
+          id,
+          isLogin: !!hasLogin
+        }
       }
     } else {
       return ctx.body = {
@@ -440,14 +465,12 @@ module.exports = {
     }
   },
   async updateWeixinUser(ctx) {
-    const unionid = ctx.request.body.unionid
-    const openid = ctx.request.body.openid
+    const id = ctx.request.body.id
     const info = ctx.request.body.info
 
     // 检查非必填
     const checked = common.checkRequired({
-      openid,
-      unionid,
+      id,
       info,
     }, ctx)
     if (!checked) return
@@ -458,17 +481,29 @@ module.exports = {
     //   'info.openid': openid,
     // }).lean()
 
+    const idRes = await unionidEncryptionModel.findOne({
+      id
+    })
+    if (!idRes) {
+      return ctx.body = {
+        status: 200000,
+        message: '用户不存在',
+        data: {}
+      }
+    }
+
+
     // 新增或者更新 授权数据
     const authData = await oauthModel.findOneAndUpdate(
       {
-        id: unionid.toString()
+        id: idRes.data.unionid.toString()
       },
       {
         $set: {
           type: 'weixin',
           info: {
-            unionid: unionid,
-            openid: openid,
+            unionid:  idRes.data.unionid,
+            openid:  idRes.data.openid,
             ...info
           },
           mTime: new Date()
@@ -511,31 +546,42 @@ module.exports = {
         upsert: true
       }
     )
-      .populate('weixin')
+      // .populate('weixin')
       .lean()
 
     ctx.body = {
       status: 200,
       message: 'ok',
       data: {
-        ...userInfo
+        ...humb(userInfo)
       }
     }
   },
   // 获取微信用户信息
   async getWeixinUser(ctx) {
-    const unionid = ctx.request.query.unionid
-    const openid = ctx.request.query.openid
+    const id = ctx.request.query.id
+    // const openid = ctx.request.query.openid
     // 检查非必填
     const checked = common.checkRequired({
-      openid,
-      unionid,
+      id,
     }, ctx)
     if (!checked) return
+
+    const idRes = await unionidEncryptionModel.findOne({
+      id
+    })
+    if (!idRes) {
+      return ctx.body = {
+        status: 200000,
+        message: '用户不存在',
+        data: {}
+      }
+    }
+
     const res = await oauthModel.findOne({
       type: 'weixin',
-      'info.unionid': unionid,
-      'info.openid': openid,
+      'info.unionid': idRes.data.unionid,
+      'info.openid':  idRes.data.openid,
     }).lean()
     if (!res) {
       return ctx.body = {
@@ -547,8 +593,10 @@ module.exports = {
 
     const userRes = await userModel.findOne({
       weixin: res._id
+    }, {
+      weixin: 0
     })
-      .populate('weixin')
+      // .populate('weixin')
       .lean()
 
     if (!userRes) {
@@ -563,7 +611,7 @@ module.exports = {
       status: 200,
       message: 'ok',
       data: {
-        ...userRes
+        ...humb(userRes)
       }
     }
 
