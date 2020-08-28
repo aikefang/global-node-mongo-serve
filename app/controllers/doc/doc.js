@@ -1,7 +1,7 @@
 const common = require('../../../lib/common')
 const docModel = require('../../models/doc/doc')
 const docCategoryModel = require('../../models/doc/doc-category')
-
+const logModel = require('../../models/log')
 module.exports = {
   // 搜索
   async search(ctx) {
@@ -97,6 +97,7 @@ module.exports = {
   // 获取内容
   async content(ctx) {
     const path = ctx.request.query.path
+    const userId = ctx.request.query.userId
 
     const checked = common.checkRequired({
       path
@@ -117,8 +118,17 @@ module.exports = {
         upsert: false
       }
     )
+    console.log(res)
 
     if (res) {
+      // log
+      common.log('xcx-article-view', {
+        userId,
+        category: res.category,
+        path: res.path,
+        ip: common.getClientIP(ctx.req)
+      })
+
       return ctx.body = {
         status: 200,
         message: 'ok',
@@ -175,5 +185,127 @@ module.exports = {
         ...res
       }
     }
+  },
+
+  // 推荐（猜你喜欢）
+  async recommend(ctx) {
+    const userId = ctx.request.body.userId
+
+
+
+    const list = await common.cacheData({
+      cacheType: 'guess-like-article-' + userId,
+      async fn() {
+        let xcxList = await logModel.aggregate([
+          {
+            $match: {
+              type: 'xcx-article-view',
+              'data.userId': userId
+            },
+          },
+          {
+            $project: {
+              'data': 1
+            },
+          },
+          {
+            $group: {
+              _id: '$data.category',
+              count: {$sum: 1}, // 统计总数量
+            }
+          },
+          {
+            $sort: {count: -1}// 根据date排序
+          },
+          {
+            $limit: 5
+          }
+        ])
+
+        let docList = []
+        const condition = {
+          path: 1,
+          title: 1,
+          views: 1,
+        }
+
+        if (xcxList.length === 0) {
+          docList = await docModel
+            .find({}, condition)
+            .sort({
+              views: -1
+            })
+            .limit(10)
+            .lean()
+
+        } else if (xcxList.length === 1) {
+          docList = await docModel
+            .find({
+              category: xcxList[0]._id
+            }, condition)
+            .sort({
+              views: -1
+            })
+            .limit(10)
+            .lean()
+        } else {
+          let totalNum = 0
+          // 计算综合
+          xcxList.forEach(data => {
+            totalNum += data.count
+          })
+
+          // 按照百分比分配
+          for (let i = 0; i < xcxList.length; i++) {
+            const num = parseInt(xcxList[i].count / totalNum * 10)
+            if (num > 0) {
+              const res = await docModel
+                .find({
+                  category: xcxList[i]._id
+                }, condition)
+                .sort({
+                  views: -1
+                })
+                .limit(num)
+                .lean()
+              docList.push(...res)
+            }
+          }
+        }
+        // 补足10个
+        if (docList.length < 10) {
+          const neArr = docList.map(data => {
+            return {
+              path: {
+                $ne: data.path
+              }
+            }
+          })
+          const res = await docModel
+            .find({
+              $and: neArr
+            }, condition)
+            .sort({
+              views: -1
+            })
+            .limit(10 - docList.length)
+            .lean()
+          docList.push(...res)
+        }
+
+        return docList
+      },
+      // 每10分钟更新一次
+      updateMillisecond: 1000 * 60 * 10
+    })
+
+    ctx.body = {
+      status: 200,
+      message: 'ok',
+      data: {
+        list
+      }
+    }
   }
+
 }
