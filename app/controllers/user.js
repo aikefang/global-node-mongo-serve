@@ -9,6 +9,8 @@ const humb = require('../../lib/hump')
 const moment = require('moment')
 const config = require('../../config/config')
 const md5 = require('md5')
+const WXBizDataCrypt = require('../../lib/WXBizDataCrypt')
+
 module.exports = {
   // 登录
   async login(ctx, next) {
@@ -412,100 +414,53 @@ module.exports = {
   },
   async weixinLogin(ctx) {
     const code = ctx.request.query.code
+    const encryptedData = ctx.request.query.encryptedData
+    const iv = ctx.request.query.iv
     // 检查非必填
     const checked = common.checkRequired({
-      code
+      code,
+      encryptedData,
+      iv,
     }, ctx)
     if (!checked) return
     const {appid, secret} = config.server.xiaochengxu
+    // 获取session_key
     const res = await common.request.get('https://api.weixin.qq.com/sns/jscode2session', {
       appid,
       secret,
       grant_type: 'authorization_code',
       js_code: code
     })
-
-
-    if (res && res.openid) {
-      let id = md5(res.unionid.toString())
-      const idRes = await unionidEncryptionModel.findOneAndUpdate(
-        {
-          id
-        },
-        {
-          $set: {
-            id,
-            data: res
-          }
-        },
-        {
-          new: true,
-          upsert: true
-        }
-      )
-      const hasLogin = await oauthModel.findOne({
-        id: idRes.data.unionid.toString()
-      })
+    // 获取session_key失败
+    if (!res.session_key) {
       return ctx.body = {
-        status: 200,
-        message: 'ok',
-        data: {
-          id,
-          isLogin: !!hasLogin
-        }
-      }
-    } else {
-      return ctx.body = {
-        status: 200100,
-        message: 'error',
-        data: {
-          ...res
-        }
+        status: 500001,
+        message: 'jscode2session 未知错误',
+        data: {}
       }
     }
-  },
-  async updateWeixinUser(ctx) {
-    const id = ctx.request.body.id
-    const info = ctx.request.body.info
+    // 解密获取微信用户信息
+    const pc = new WXBizDataCrypt(appid, res.session_key)
+    const wxUserInfo = pc.decryptData(decodeURIComponent(encryptedData), decodeURIComponent(iv))
 
-    // 检查非必填
-    const checked = common.checkRequired({
-      id,
-      info,
-    }, ctx)
-    if (!checked) return
-
-    // const res = await oauthModel.findOne({
-    //   type: 'weixin',
-    //   'info.unionid': unionid,
-    //   'info.openid': openid,
-    // }).lean()
-
-    const idRes = await unionidEncryptionModel.findOne({
-      id
-    })
-    if (!idRes) {
+    // 如果获取微信用户信息失败
+    if (!wxUserInfo.unionId) {
       return ctx.body = {
-        status: 200000,
-        message: '用户不存在',
+        status: 500001,
+        message: 'decryptData 未知错误',
         data: {}
       }
     }
 
-
     // 新增或者更新 授权数据
     const authData = await oauthModel.findOneAndUpdate(
       {
-        id: idRes.data.unionid.toString()
+        id: wxUserInfo.unionId.toString()
       },
       {
         $set: {
           type: 'weixin',
-          info: {
-            unionid:  idRes.data.unionid,
-            openid:  idRes.data.openid,
-            ...info
-          },
+          info: wxUserInfo,
           mTime: new Date()
         }
       },
@@ -515,18 +470,20 @@ module.exports = {
       }
     )
 
+    // 查询当前登录用户
+    const userData = await userModel.findOne({
+      user_type: 3,
+      weixin: common.ObjectId(authData._id)
+    })
+
     const updateData = {
-      nickname: authData.info.nickName,
-      weixin: authData._id,
+      nickname: wxUserInfo.nickName,
+      weixin: common.ObjectId(authData._id),
       user_type: 3
     }
 
-    // 查询用户
-    const userRes = await userModel.findOne({
-      weixin: authData._id
-    })
-    // 用户不存在
-    if (!userRes) {
+    // 当前用户不存在
+    if (!userData) {
       updateData.c_time = new Date()
       // 将微信头像地址处理成CDN地址
       const imgData = await fetch(authData.info.avatarUrl, 'suchaxun/user/header/')
@@ -546,59 +503,35 @@ module.exports = {
         upsert: true
       }
     )
-      // .populate('weixin')
+      .populate('weixin')
       .lean()
+
+    const user = {}
+    user._id = userInfo._id
+    user.nickname = userInfo.nickname
+    user.headImg = userInfo.head_img
 
     ctx.body = {
       status: 200,
       message: 'ok',
       data: {
-        ...humb(userInfo)
+        user
       }
     }
   },
   // 获取微信用户信息
   async getWeixinUser(ctx) {
     const id = ctx.request.query.id
-    // const openid = ctx.request.query.openid
     // 检查非必填
     const checked = common.checkRequired({
       id,
     }, ctx)
     if (!checked) return
 
-    const idRes = await unionidEncryptionModel.findOne({
-      id
-    })
-    if (!idRes) {
-      return ctx.body = {
-        status: 200000,
-        message: '用户不存在',
-        data: {}
-      }
-    }
-
-    const res = await oauthModel.findOne({
-      type: 'weixin',
-      'info.unionid': idRes.data.unionid,
-      'info.openid':  idRes.data.openid,
-    }).lean()
-    if (!res) {
-      return ctx.body = {
-        status: 200000,
-        message: '用户不存在',
-        data: {}
-      }
-    }
-
     const userRes = await userModel.findOne({
-      weixin: res._id
-    }, {
-      weixin: 0
-    })
-      // .populate('weixin')
-      .lean()
-
+      _id: id
+    }).lean()
+    // 用户不存在
     if (!userRes) {
       return ctx.body = {
         status: 200000,
@@ -606,15 +539,17 @@ module.exports = {
         data: {}
       }
     }
-
     ctx.body = {
       status: 200,
       message: 'ok',
       data: {
-        ...humb(userRes)
+        user: {
+          _id: userRes._id,
+          nickname: userRes.nickname,
+          headImg: userRes.head_img,
+        }
       }
     }
-
   },
   async updateAvatar(ctx) {
 

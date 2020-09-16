@@ -11,6 +11,5 @@ router.post('/register', ai(controller.register))
 // 小程序相关接口
 router.post('/weixinLogin', ai(controller.weixinLogin))
 router.post('/getWeixinUser', ai(controller.getWeixinUser))
-router.post('/updateWeixinUser', ai(controller.updateWeixinUser))
 
 module.exports = router
