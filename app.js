@@ -23,8 +23,15 @@ const storage = multer.diskStorage({
     cb(null, `${hash}${suffix}`)
   }
 })
+//文件上传限制
+const limits = {
+  fields: 10, // 非文件字段的数量
+  fileSize: 500 * 1024, //文件大小 单位 b
+  files: 6 //文件数量
+}
 //加载配置
-const upload = multer({storage: storage})
+const upload = multer({storage, limits})
+
 
 // 路由
 const Router = require('koa-router')
