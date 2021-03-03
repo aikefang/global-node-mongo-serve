@@ -2,6 +2,7 @@ const userModel = require('../models/user')
 const articleModel = require('../models/biji/article')
 const logModel = require('../models/log')
 const oauthModel = require('../models/oauth-info-cache')
+const mapOauthModel = require('../models/map-oauth-info-cache')
 const unionidEncryptionModel = require('../models/unionid-encryption')
 const common = require('../../lib/common')
 const fetch = require('../../lib/fetch')
@@ -553,5 +554,124 @@ module.exports = {
   },
   async updateAvatar(ctx) {
 
-  }
+  },
+
+
+  // 地图小程序登录接口（随时可删除）
+  async mapWeixinLogin(ctx) {
+    const code = ctx.request.query.code
+    const encryptedData = ctx.request.query.encryptedData
+    const iv = ctx.request.query.iv
+    // 检查非必填
+    const checked = common.checkRequired({
+      code,
+      encryptedData,
+      iv,
+    }, ctx)
+    if (!checked) return
+    const {appid, secret} = config.server.mapXiaochengxu
+    // 获取session_key
+    const res = await common.request.get('https://api.weixin.qq.com/sns/jscode2session', {
+      appid,
+      secret,
+      grant_type: 'authorization_code',
+      js_code: code
+    })
+    // 获取session_key失败
+    if (!res.session_key) {
+      return ctx.body = {
+        status: 500001,
+        message: 'jscode2session 未知错误',
+        data: {}
+      }
+    }
+    // 解密获取微信用户信息
+    const pc = new WXBizDataCrypt(appid, res.session_key)
+    const wxUserInfo = pc.decryptData(decodeURIComponent(encryptedData), decodeURIComponent(iv))
+    // 如果获取微信用户信息失败
+    // if (!wxUserInfo.unionId) {
+    //   return ctx.body = {
+    //     status: 500001,
+    //     message: 'decryptData 未知错误',
+    //     data: {}
+    //   }
+    // }
+
+    if (wxUserInfo.avatarUrl) {
+      // updateData.c_time = new Date()
+      // 将微信头像地址处理成CDN地址
+      const imgData = await fetch(wxUserInfo.avatarUrl, 'mapXCX/user/header/')
+      wxUserInfo.avatarUrl = '//static.webascii.cn/' + imgData.key
+    }
+    // console.log(wxUserInfo)
+
+    // 新增或者更新 授权数据
+    const authData = await mapOauthModel.findOneAndUpdate(
+      {
+        id: wxUserInfo.openId.toString()
+      },
+      {
+        $set: {
+          type: 'weixin',
+          info: wxUserInfo,
+          mTime: new Date()
+        }
+      },
+      {
+        new: true,
+        upsert: true
+      }
+    )
+    // 查询当前登录用户
+    const userData = await mapOauthModel.findOne({
+      _id: common.ObjectId(authData._id)
+    })
+    ctx.body = {
+      status: 200,
+      message: 'ok',
+      data: {
+        userInfo: {
+          cTime: userData.cTime,
+          _id: userData._id,
+          avatarUrl: userData.info.avatarUrl,
+          gender: userData.info.gender,
+          nickName: userData.info.nickName,
+        }
+      }
+    }
+  },
+  // 获取地图小程序用户信息(随时可删)
+  async getMapWeixinUser(ctx) {
+    const id = ctx.request.query.id
+    // 检查非必填
+    const checked = common.checkRequired({
+      id,
+    }, ctx)
+    if (!checked) return
+
+    const userRes = await mapOauthModel.findOne({
+      _id: id
+    }).lean()
+    // 用户不存在
+    if (!userRes) {
+      return ctx.body = {
+        status: 200000,
+        message: '用户不存在',
+        data: {}
+      }
+    }
+    ctx.body = {
+      status: 200,
+      message: 'ok',
+      data: {
+        userInfo: {
+          cTime: userRes.cTime,
+          _id: userRes._id,
+          avatarUrl: userRes.info.avatarUrl,
+          gender: userRes.info.gender,
+          nickName: userRes.info.nickName,
+        }
+      }
+    }
+  },
 }
