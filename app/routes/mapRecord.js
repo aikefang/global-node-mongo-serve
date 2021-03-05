@@ -6,5 +6,6 @@ const ai = require('../../lib/abnormal-interception')
 router.post('/list', ai(controller.list))
 // 地图小程序（随时可删）
 router.post('/insert', ai(controller.insert))
+router.post('/nearbyLocation', ai(controller.nearbyLocation))
 
 module.exports = router

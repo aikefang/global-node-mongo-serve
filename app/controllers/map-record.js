@@ -76,6 +76,7 @@ module.exports = {
             type,
             mTime: new Date(),
             userInfo: userId,
+            location: [lng, lat]
           }
         },
         {
@@ -94,6 +95,7 @@ module.exports = {
         address,
         type,
         userInfo: userId,
+        location: [lng, lat]
       })
       // 创建历史记录
       const res = await mapRecord.create(mapRecordEnity)
@@ -104,4 +106,42 @@ module.exports = {
       }
     }
   },
+  // 附近的地点
+  async nearbyLocation(ctx) {
+    const {lat, lng, userType, distance = 5000} = ctx.request.query
+    // 检查非必填
+    const checked = common.checkRequired({
+      lat,
+      lng,
+      userType,
+    }, ctx)
+    if (!checked) return
+
+    const list = await mapRecord.find({
+      location: {
+        $geoWithin: {$centerSphere: [[Number(lng), Number(lat)], distance / 6378100]}
+      },
+      type: Number(userType) === 2 ? 1 : 2
+    }, {
+      lat: 1,
+      lng: 1,
+      address: 1,
+      type: 1,
+    })
+      .limit(20)
+      .populate('userInfo', {
+        'info.nickName': 1,
+        'info.gender': 1,
+        'info.avatarUrl': 1
+      })
+
+    ctx.body = {
+      status: 200,
+      message: 'ok',
+      data: {
+        list
+      }
+    }
+
+  }
 }

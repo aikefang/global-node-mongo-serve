@@ -9,6 +9,17 @@ let schema = new mongoose.Schema({
   // 经纬度
   lat: Number,
   lng: Number,
+  // location: {
+  //   // type : mongoose.Schema.Types.Decimal128,
+  //   index: '2d', // 建立索引
+  //   sparse: true,
+  //   coordinates : [Number]
+  // },
+  location:{
+    type:[Number],
+    index: '2d',
+    sparse: true,
+  },
   // 地址
   address: String,
   /**
