@@ -22,6 +22,15 @@ let schema = new mongoose.Schema({
 		default: Date.now
 	},
 	mTime: Date,
+	/**
+	 * 用户类型
+	 * 1: 乘客
+	 * 2: 车主
+	 */
+	userType: {
+		type: Number,
+		default: 1
+	}
 })
 
 module.exports = db.model('map_oauth_info_cache', schema)

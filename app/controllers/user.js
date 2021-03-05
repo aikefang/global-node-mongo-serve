@@ -636,6 +636,7 @@ module.exports = {
           avatarUrl: userData.info.avatarUrl,
           gender: userData.info.gender,
           nickName: userData.info.nickName,
+          userType: userData.userType,
         }
       }
     }
@@ -670,8 +671,48 @@ module.exports = {
           avatarUrl: userRes.info.avatarUrl,
           gender: userRes.info.gender,
           nickName: userRes.info.nickName,
+          userType: userRes.userType,
         }
       }
     }
   },
+  async setMapWXUserType(ctx) {
+    const id = ctx.request.query.id
+    const type = ctx.request.query.type
+    // 检查非必填
+    const checked = common.checkRequired({
+      id,
+      type,
+    }, ctx)
+    if (!checked) return
+
+    const authData = await mapOauthModel.findOneAndUpdate(
+      {
+        _id: id
+      },
+      {
+        $set: {
+          userType: type
+        }
+      },
+      {
+        new: true,
+        // upsert: true
+      }
+    )
+    ctx.body = {
+      status: 200,
+      message: 'ok',
+      data: {
+        userInfo: {
+          cTime: authData.cTime,
+          _id: authData._id,
+          avatarUrl: authData.info.avatarUrl,
+          gender: authData.info.gender,
+          nickName: authData.info.nickName,
+          userType: authData.userType,
+        }
+      }
+    }
+  }
 }

@@ -16,5 +16,7 @@ router.post('/getWeixinUser', ai(controller.getWeixinUser))
 router.post('/mapWeixinLogin', ai(controller.mapWeixinLogin))
 // 地图小程序（随时可删）
 router.post('/getMapWeixinUser', ai(controller.getMapWeixinUser))
+// 地图小程序（随时可删）
+router.post('/setMapWXUserType', ai(controller.setMapWXUserType))
 
 module.exports = router
