@@ -23,11 +23,11 @@ module.exports = {
 
     let findObj = {}
 
-    if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
-      findObj.levelSecond = {
-        $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
-      }
-    }
+    // if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
+    //   findObj.levelSecond = {
+    //     $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+    //   }
+    // }
 
     const articleList = await articleModel.find(findObj, {
       content: 0
@@ -210,15 +210,15 @@ module.exports = {
     const params = {
       ...type
     }
-    if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
-      params.$and = [
-        {
-          levelSecond: {
-            $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
-          }
-        }
-      ]
-    }
+    // if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
+    //   params.$and = [
+    //     {
+    //       levelSecond: {
+    //         $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+    //       }
+    //     }
+    //   ]
+    // }
 
     if (keyword) {
       params.title = {
@@ -415,14 +415,14 @@ module.exports = {
         }
       ]
     }
-    if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
-      // 搜索条件添加
-      findObj.$and.push({
-        levelSecond: {
-          $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
-        }
-      })
-    }
+    // if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
+    //   // 搜索条件添加
+    //   findObj.$and.push({
+    //     levelSecond: {
+    //       $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+    //     }
+    //   })
+    // }
     // 获取当前二级分类推荐
     const recommendList = await articleModel.find(
       findObj,
@@ -466,20 +466,20 @@ module.exports = {
           }
         ]
       }
-      if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
-        // 搜索条件添加
-        findLevelFirstObj.$and.push({
-          levelSecond: {
-            $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
-          }
-        })
-        // 搜索条件添加
-        findNewObj.$and.push({
-          levelSecond: {
-            $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
-          }
-        })
-      }
+      // if (!(ctx.session.logged === true && ctx.session.userInfo.account === 'madashi')) {
+      //   // 搜索条件添加
+      //   findLevelFirstObj.$and.push({
+      //     levelSecond: {
+      //       $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+      //     }
+      //   })
+      //   // 搜索条件添加
+      //   findNewObj.$and.push({
+      //     levelSecond: {
+      //       $ne: global.custom.mongoose.Types.ObjectId('5ef2cb2f071be112473163ca')
+      //     }
+      //   })
+      // }
       // 获取主分类推荐
       const recommendLevelFirstList = await articleModel.find(
         findLevelFirstObj,
