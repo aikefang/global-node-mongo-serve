@@ -11,7 +11,9 @@ const navModel = require('../models/biji/nav')
 const bookModel = require('../models/book/book')
 
 
-const {connection} = require('../../config/webascii-mysql')
+const {connection} = {
+  connection: {}
+}
 // let dateFormat = require('dateformat')
 module.exports = {
   // 处理文章

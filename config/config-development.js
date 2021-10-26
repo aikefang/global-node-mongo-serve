@@ -1,4 +1,4 @@
-let config = require('/Users/kyle/global-config/global-config')
+let config = require('/Users/kyle/global-config/local-config')
 exports.serverOptions = config.mongoService.serverOptions
 exports.mongo = config.mongoService.mongo
 

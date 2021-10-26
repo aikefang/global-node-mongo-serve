@@ -81,7 +81,7 @@ app.use(cors({
 }))
 app.keys = config.sissionOption.keys
 const CONFIG = config.sissionOption.config
-require('./config/webascii-mysql')
+// require('./config/webascii-mysql')
 app.use(session(CONFIG, app))
 
 app.use(bodyParser())
