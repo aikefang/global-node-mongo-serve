@@ -360,7 +360,7 @@ module.exports = {
 
     let isAuthor = false
     // 当前用户已登录 && 是否为作者
-    if (viewUserInfo.userInfo && viewUserInfo.userInfo._id.toString() === details.author._id.toString()) {
+    if (viewUserInfo.userInfo && viewUserInfo.userInfo._id && viewUserInfo.userInfo._id.toString() === details.author._id.toString()) {
       isAuthor = true
     }
 
