@@ -1,4 +1,4 @@
-let config = require('/home/wwwroot/global-config.js')
+let config = require('/home/wwwroot/global-config/prod-config.js')
 exports.serverOptions = config.mongoService.serverOptions
 exports.mongo = config.mongoService.mongo
 

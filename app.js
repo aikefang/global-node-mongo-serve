@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
 //文件上传限制
 const limits = {
   fields: 10, // 非文件字段的数量
-  fileSize: 500 * 1024, //文件大小 单位 b
+  fileSize: 5 * 1024 * 1024, //文件大小 单位 b
   files: 6 //文件数量
 }
 //加载配置
@@ -81,7 +81,7 @@ app.use(cors({
 }))
 app.keys = config.sissionOption.keys
 const CONFIG = config.sissionOption.config
-require('./config/webascii-mysql')
+// require('./config/webascii-mysql')
 app.use(session(CONFIG, app))
 
 app.use(bodyParser())
