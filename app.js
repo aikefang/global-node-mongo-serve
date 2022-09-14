@@ -70,7 +70,7 @@ app.use(cors({
   //   return '*'
   // },
   exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'], // 设置获取其他自定义字段
-  maxAge: 5, // 指定本次预检请求的有效期，单位为秒。
+  maxAge: 1728000, // 指定本次预检请求的有效期，单位为秒。
   credentials: true, // 是否允许发送Cookie
   allowMethods: ['GET', 'POST', 'DELETE'], // 设置所允许的HTTP请求方法
   allowHeaders: [
@@ -78,6 +78,18 @@ app.use(cors({
     'Authorization',
     'Accept'
   ], // 设置服务器支持的所有头信息字段
+  origin: [
+    'https://static.webascii.cn',
+    'https://www.webascii.cn',
+    'https://www2.webascii.cn',
+    'https://admin.webascii.cn',
+    'http://png.webascii.cn',
+    'https://m.webascii.cn',
+    'https://sw.webascii.cn',
+    'https://static.webascii.cn',
+    'http://localhost:9876',
+    'http://dev.webascii.cn:5678'
+  ],
 }))
 app.keys = config.sissionOption.keys
 const CONFIG = config.sissionOption.config
