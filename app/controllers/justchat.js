@@ -27,7 +27,7 @@ var client = thrift.createClient(Justchat, connection);
 const QA_file = './lib/justchat/QA/QA3.txt'
 const QA = fs.readFileSync(QA_file);
 
-const product_str_file = './lib/justchat/productInfo/A6.CSV'
+const product_str_file = './lib/justchat/productInfo/A6.csv'
 const product_str = fs.readFileSync(product_str_file);
 
 
